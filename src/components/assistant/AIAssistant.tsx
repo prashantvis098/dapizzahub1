@@ -1,0 +1,196 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, X, Send, Sparkles } from "lucide-react";
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+  suggestions?: string[];
+}
+
+const initialMessage: Message = {
+  id: "init",
+  role: "assistant",
+  text: "Hi! I'm the Da Pizza Hub assistant. Ask me about our menu, prices, branches, or delivery.",
+  suggestions: ["Show best sellers", "Where are your branches?", "Do you deliver to me?"],
+};
+
+export function AIAssistant() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([initialMessage]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  async function sendMessage(text: string) {
+    if (!text.trim()) return;
+
+    const userMsg: Message = { id: `u_${Date.now()}`, role: "user", text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setIsTyping(true);
+
+    try {
+      const res = await fetch("/api/assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+
+      // small natural delay so it doesn't feel instant/robotic
+      await new Promise((r) => setTimeout(r, 400));
+
+      if (data.success) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `a_${Date.now()}`,
+            role: "assistant",
+            text: data.reply.text,
+            suggestions: data.reply.suggestions,
+          },
+        ]);
+      }
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        { id: `a_${Date.now()}`, role: "assistant", text: "Sorry, I'm having trouble right now. Please call us directly!" },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  }
+
+  return (
+    <>
+      {/* Floating toggle button */}
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.94 }}
+        className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full bg-accent shadow-accentGlow flex items-center justify-center"
+        aria-label="Open AI Assistant"
+      >
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+              <X size={22} className="text-white" />
+            </motion.div>
+          ) : (
+            <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+              <Sparkles size={22} className="text-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-24 right-6 z-[90] w-[calc(100vw-3rem)] sm:w-96 h-[500px] max-h-[70vh] glass rounded-3xl flex flex-col overflow-hidden shadow-card-hover"
+          >
+            {/* Header */}
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center">
+                <Sparkles size={16} className="text-accent" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold">DPH Assistant</h3>
+                <span className="text-[11px] text-ink-muted">Ask me anything about our menu</span>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              {messages.map((msg) => (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div className={`max-w-[85%] ${msg.role === "user" ? "" : ""}`}>
+                    <div
+                      className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+                        msg.role === "user"
+                          ? "bg-accent text-white rounded-br-md"
+                          : "bg-card text-ink-primary rounded-bl-md"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                    {msg.suggestions && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {msg.suggestions.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => sendMessage(s)}
+                            className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-ink-secondary hover:border-gold/40 hover:text-gold transition-colors duration-300"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-card rounded-2xl rounded-bl-md px-4 py-3 flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.span
+                        key={i}
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                        className="w-1.5 h-1.5 rounded-full bg-ink-muted"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage(input);
+              }}
+              className="flex items-center gap-2 px-4 py-3 border-t border-white/5 shrink-0"
+            >
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about menu, price, delivery..."
+                className="flex-1 bg-card border border-white/10 rounded-full px-4 py-2.5 text-sm text-ink-primary placeholder:text-ink-muted focus:border-gold/40 outline-none transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim()}
+                className="p-2.5 rounded-full bg-accent hover:bg-accent-bright disabled:opacity-40 transition-colors duration-300 shrink-0"
+                aria-label="Send message"
+              >
+                <Send size={16} className="text-white" />
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
