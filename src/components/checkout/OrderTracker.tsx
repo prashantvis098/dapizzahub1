@@ -92,9 +92,9 @@ export function OrderTracker({ placedAt }: { placedAt: number }) {
   }
 
   return (
-    <div className="bg-card rounded-3xl p-6 border border-white/5 mb-6">
+    <div className="bg-card rounded-3xl p-4 sm:p-6 border border-white/5 mb-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-semibold text-lg">Order Status</h2>
+        <h2 className="font-semibold text-base sm:text-lg">Order Status</h2>
         <AnimatePresence mode="wait">
           <motion.span
             key={currentStage.key}
@@ -115,9 +115,9 @@ export function OrderTracker({ placedAt }: { placedAt: number }) {
 
       {/* Progress track */}
       <div className="relative mb-8 px-1">
-        <div className="absolute top-4 left-1 right-1 h-0.5 bg-white/10 rounded-full" />
+        <div className="absolute top-3.5 sm:top-4 left-1 right-1 h-0.5 bg-white/10 rounded-full" />
         <motion.div
-          className="absolute top-4 left-1 h-0.5 bg-gold rounded-full"
+          className="absolute top-3.5 sm:top-4 left-1 h-0.5 bg-gold rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `calc(${progressPct}% - ${progressPct > 0 ? 8 : 0}px)` }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -138,7 +138,7 @@ export function OrderTracker({ placedAt }: { placedAt: number }) {
                     repeat: isCurrent && !isDelivered ? Infinity : 0,
                     ease: "easeInOut",
                   }}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-500 [&_svg]:w-3.5 [&_svg]:h-3.5 sm:[&_svg]:w-[18px] sm:[&_svg]:h-[18px] ${
                     done
                       ? "bg-gold border-gold text-bg"
                       : "bg-card border-white/15 text-ink-muted"
@@ -162,8 +162,8 @@ export function OrderTracker({ placedAt }: { placedAt: number }) {
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="text-center"
         >
-          <p className="font-semibold text-base mb-1">{currentStage.label}</p>
-          <p className="text-sm text-ink-muted">{currentStage.subtext}</p>
+          <p className="font-semibold text-sm sm:text-base mb-1">{currentStage.label}</p>
+          <p className="text-xs sm:text-sm text-ink-muted">{currentStage.subtext}</p>
         </motion.div>
       </AnimatePresence>
     </div>

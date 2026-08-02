@@ -124,9 +124,9 @@ export function ProductCard({
 
       {/* CONTENT */}
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
 
-        <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">
+        <h3 className="text-base sm:text-xl font-bold text-white mb-1.5 sm:mb-2 line-clamp-1">
 
           {item.name}
 
@@ -134,7 +134,7 @@ export function ProductCard({
 
         {item.description && (
 
-          <p className="text-sm text-white/55 leading-6 line-clamp-2 mb-5">
+          <p className="text-xs sm:text-sm text-white/55 leading-5 sm:leading-6 line-clamp-2 mb-3 sm:mb-5">
 
             {item.description}
 
@@ -146,7 +146,7 @@ export function ProductCard({
 
           <div>
 
-            <p className="text-xs uppercase tracking-widest text-white/40 mb-1">
+            <p className="text-[10px] sm:text-xs uppercase tracking-widest text-white/40 mb-1">
 
               {item.type === "pizza"
                 ? "Starting From"
@@ -154,7 +154,7 @@ export function ProductCard({
 
             </p>
 
-            <h4 className="text-3xl font-bold text-[#FFC107]">
+            <h4 className="text-xl sm:text-3xl font-bold text-[#FFC107]">
 
               {formatINR(startingPrice)}
 
@@ -165,17 +165,28 @@ export function ProductCard({
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.05 }}
             onClick={handleQuickAdd}
-            className="group/add relative h-14 w-14 rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] shadow-[0_10px_30px_rgba(217,31,38,.35)] transition-all duration-300 hover:shadow-[0_15px_35px_rgba(217,31,38,.55)]"
+            className="group/add relative h-11 w-11 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] shadow-[0_10px_30px_rgba(217,31,38,.35)] transition-all duration-300 hover:shadow-[0_15px_35px_rgba(217,31,38,.55)] shrink-0"
           >
             {item.type === "pizza" ? (
               <Settings2
+                size={18}
+                className="mx-auto text-white transition-transform duration-300 group-hover/add:rotate-90 sm:hidden"
+              />
+            ) : (
+              <Plus
+                size={20}
+                className="mx-auto text-white transition-transform duration-300 group-hover/add:scale-125 sm:hidden"
+              />
+            )}
+            {item.type === "pizza" ? (
+              <Settings2
                 size={22}
-                className="mx-auto text-white transition-transform duration-300 group-hover/add:rotate-90"
+                className="mx-auto hidden text-white transition-transform duration-300 group-hover/add:rotate-90 sm:block"
               />
             ) : (
               <Plus
                 size={24}
-                className="mx-auto text-white transition-transform duration-300 group-hover/add:scale-125"
+                className="mx-auto hidden text-white transition-transform duration-300 group-hover/add:scale-125 sm:block"
               />
             )}
           </motion.button>
@@ -184,16 +195,18 @@ export function ProductCard({
 
         <button
           onClick={handleQuickAdd}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] py-4 font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(217,31,38,.35)] active:scale-[0.98]"
+          className="mt-4 sm:mt-6 flex w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] py-3 sm:py-4 text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(217,31,38,.35)] active:scale-[0.98]"
         >
           {item.type === "pizza" ? (
             <>
-              <Settings2 size={18} />
+              <Settings2 size={16} className="sm:hidden" />
+              <Settings2 size={18} className="hidden sm:block" />
               Customize Pizza
             </>
           ) : (
             <>
-              <Plus size={18} />
+              <Plus size={16} className="sm:hidden" />
+              <Plus size={18} className="hidden sm:block" />
               Add To Cart
             </>
           )}

@@ -20,7 +20,20 @@ import { generateOrderNumber } from "@/lib/utils";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { branchId, customerName, customerPhone, deliveryAddress, items, subtotal, paymentMethod } = body;
+    const {
+      branchId,
+      customerName,
+      customerPhone,
+      deliveryAddress,
+      items,
+      subtotal,
+      discount,
+      couponCode,
+      total,
+      paymentMethod,
+      scheduleMode,
+      scheduledFor,
+    } = body;
 
     if (!customerName || !customerPhone || !items?.length) {
       return NextResponse.json(
@@ -38,9 +51,17 @@ export async function POST(request: NextRequest) {
       customerPhone,
       deliveryAddress,
       items,
-      subtotal,
+      subtotal: total ?? subtotal, // prefer the post-discount total if provided
       paymentMethod,
     });
+
+    // discount/couponCode/scheduleMode/scheduledFor aren't sent to Petpooja
+    // yet (see src/lib/petpooja.ts payload shape), but are accepted here so
+    // a future database-backed order record can store them.
+    void discount;
+    void couponCode;
+    void scheduleMode;
+    void scheduledFor;
 
     return NextResponse.json({
       success: true,

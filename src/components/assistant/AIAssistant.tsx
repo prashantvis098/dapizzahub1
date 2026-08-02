@@ -71,22 +71,27 @@ export function AIAssistant() {
 
   return (
     <>
-      {/* Floating toggle button */}
+      {/* Floating toggle button.
+          bottom-24 clears the MobileOrderBar (fixed, full-width, appears
+          whenever the cart has items) on mobile; lg:bottom-6 restores the
+          original position on desktop where that bar never renders. */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full bg-accent shadow-accentGlow flex items-center justify-center"
+        className="fixed bottom-24 right-4 sm:right-6 lg:bottom-6 z-[90] w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent shadow-accentGlow flex items-center justify-center"
         aria-label="Open AI Assistant"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
             <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X size={22} className="text-white" />
+              <X size={20} className="text-white sm:hidden" />
+              <X size={22} className="hidden text-white sm:block" />
             </motion.div>
           ) : (
             <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-              <Sparkles size={22} className="text-white" />
+              <Sparkles size={20} className="text-white sm:hidden" />
+              <Sparkles size={22} className="hidden text-white sm:block" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -99,7 +104,7 @@ export function AIAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-24 right-6 z-[90] w-[calc(100vw-3rem)] sm:w-96 h-[500px] max-h-[70vh] glass rounded-3xl flex flex-col overflow-hidden shadow-card-hover"
+            className="fixed bottom-40 right-4 sm:right-6 lg:bottom-24 z-[90] w-[calc(100vw-2rem)] sm:w-96 h-[60vh] sm:h-[500px] max-h-[65vh] sm:max-h-[70vh] glass rounded-3xl flex flex-col overflow-hidden shadow-card-hover"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5 shrink-0">

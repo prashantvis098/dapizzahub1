@@ -120,6 +120,72 @@ export function CartDrawer() {
           ) : (
 
             <>
+            {/* Cart line items — was missing entirely; this is the actual
+                list of products in the cart, rendered above the coupon
+                and summary section below. */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+              <AnimatePresence initial={false}>
+                {lines.map((line) => (
+                  <motion.div
+                    key={line.lineId}
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, x: 60 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex gap-4 rounded-2xl bg-[#171717] p-3 border border-white/5"
+                  >
+                    {line.image && (
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[#0E0E0E]">
+                        <Image src={line.image} alt={line.name} fill className="object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between gap-2">
+                        <h4 className="text-sm font-semibold text-white leading-tight">
+                          {line.name}
+                        </h4>
+                        <button
+                          onClick={() => removeLine(line.lineId)}
+                          className="text-white/40 hover:text-[#D91F26] transition-colors shrink-0"
+                          aria-label="Remove item"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {line.customizationSummary && (
+                        <p className="text-[11px] text-white/40 mt-0.5">
+                          {line.customizationSummary}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-2.5">
+                        <div className="flex items-center gap-2.5 bg-[#0E0E0E] rounded-full px-1.5 py-1">
+                          <button
+                            onClick={() => updateQuantity(line.lineId, line.quantity - 1)}
+                            className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                          >
+                            <Minus size={12} className="text-white" />
+                          </button>
+                          <span className="text-xs font-semibold w-3 text-center text-white">
+                            {line.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(line.lineId, line.quantity + 1)}
+                            className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                          >
+                            <Plus size={12} className="text-white" />
+                          </button>
+                        </div>
+                        <span className="text-sm font-bold text-white">
+                          {formatINR(line.unitPrice * line.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
             <div className="border-t border-white/10 bg-[#101010] p-6 space-y-5">
 
   {belowMinimum && (

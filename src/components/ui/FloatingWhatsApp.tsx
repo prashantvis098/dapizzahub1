@@ -28,7 +28,12 @@ export function FloatingWhatsApp() {
         duration:.6,
       }}
 
-      className="fixed bottom-6 left-6 z-[110]"
+      // On mobile, the MobileOrderBar (fixed, full-width, z-[120]) sits at
+      // bottom-4 whenever the cart has items — without lifting this button
+      // above it, they overlap. bottom-24 clears the order bar's height;
+      // lg:bottom-6 restores the original position on desktop where the
+      // order bar never renders.
+      className="fixed bottom-24 left-4 sm:left-6 lg:bottom-6 z-[110]"
     >
 
       <motion.div
@@ -55,7 +60,7 @@ export function FloatingWhatsApp() {
 
         onMouseLeave={() => setHovered(false)}
 
-        className="relative flex h-16 items-center overflow-hidden rounded-full bg-[#25D366] shadow-[0_15px_40px_rgba(37,211,102,.45)]"
+        className="relative flex h-14 sm:h-16 items-center overflow-hidden rounded-full bg-[#25D366] shadow-[0_15px_40px_rgba(37,211,102,.45)]"
       >
                 {/* Online Indicator */}
 
@@ -69,16 +74,21 @@ export function FloatingWhatsApp() {
 
         {/* WhatsApp Icon */}
 
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center">
+        <div className="flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center">
 
           <MessageCircle
+            size={26}
+            className="text-white sm:hidden"
+          />
+          <MessageCircle
             size={30}
-            className="text-white"
+            className="hidden text-white sm:block"
           />
 
         </div>
 
-        {/* Expand Text */}
+        {/* Expand Text — desktop hover-expand only; skip on touch devices
+            where there's no hover state to trigger it anyway */}
 
         <motion.div
 
@@ -92,7 +102,7 @@ export function FloatingWhatsApp() {
             ease: [0.16,1,0.3,1],
           }}
 
-          className="overflow-hidden whitespace-nowrap"
+          className="hidden overflow-hidden whitespace-nowrap sm:block"
 
         >
 
