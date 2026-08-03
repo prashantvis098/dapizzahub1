@@ -44,7 +44,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-4 z-[100] px-4 lg:px-6">
+    <header className="fixed inset-x-0 top-4 z-[60] px-4 lg:px-6">
 
       <motion.div
         initial={{

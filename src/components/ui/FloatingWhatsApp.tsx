@@ -28,12 +28,16 @@ export function FloatingWhatsApp() {
         duration:.6,
       }}
 
-      // On mobile, the MobileOrderBar (fixed, full-width, z-[120]) sits at
+      // On mobile, the MobileOrderBar (fixed, full-width) sits at
       // bottom-4 whenever the cart has items — without lifting this button
       // above it, they overlap. bottom-24 clears the order bar's height;
       // lg:bottom-6 restores the original position on desktop where the
       // order bar never renders.
-      className="fixed bottom-24 left-4 sm:left-6 lg:bottom-6 z-[110]"
+      //
+      // z-index note: this must stay BELOW the cart drawer (z-150) and
+      // customize modal (z-160) so those overlays are always clickable
+      // and never get blocked by this floating button.
+      className="fixed bottom-24 left-4 sm:left-6 lg:bottom-6 z-[40]"
     >
 
       <motion.div

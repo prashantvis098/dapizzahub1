@@ -39,7 +39,7 @@ export function CartDrawer() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[80]"
+        className="fixed inset-0 z-[150]"
       >
         {/* Overlay */}
         <motion.div
@@ -109,7 +109,7 @@ export function CartDrawer() {
 
               <Link
                 href="/menu"
-                onClick={closeCart}
+                onClick={() => setTimeout(() => closeCart(), 0)}
                 className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] px-8 font-semibold text-white transition-all hover:scale-105"
               >
                 Explore Menu
@@ -353,7 +353,6 @@ export function CartDrawer() {
 
   <Link
     href="/checkout"
-    onClick={closeCart}
     className={`flex h-16 w-full items-center justify-center rounded-2xl text-lg font-bold transition-all duration-300 ${
       belowMinimum
         ? "pointer-events-none bg-white/10 text-white/40"
