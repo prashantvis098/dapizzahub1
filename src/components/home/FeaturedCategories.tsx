@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 const categories = [
   {
     name: "Pizza",
-    image: "/images/pizza-generic/pizza-18.webp",
+    image: "/images/pizza-generic/pizza-6.webp",
     href: "/menu?cat=pizza",
     items: "35+ Items",
     glow: "from-[#FF6B00] to-[#D91F26]",
