@@ -67,7 +67,7 @@ export function WhyChooseUs() {
 
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid items-stretch gap-8 md:grid-cols-2 xl:grid-cols-5">
 
           {points.map((point, index) => (
 
@@ -91,12 +91,12 @@ export function WhyChooseUs() {
               whileHover={{
                 y: -10,
               }}
-              className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-[#171717] p-8"
+              className="group relative flex min-h-[520px] flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#171717] p-8"
             >
 
               <div className="absolute inset-0 bg-gradient-to-b from-[#FF6B00]/10 to-transparent opacity-0 transition duration-500 group-hover:opacity-100"/>
 
-              <div className="relative">
+              <div className="relative flex h-full flex-col">
 
                 <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#D91F26] to-[#FF6B00] shadow-[0_12px_30px_rgba(217,31,38,.35)]">
 
@@ -113,12 +113,12 @@ export function WhyChooseUs() {
 
                 </h3>
 
-                <p className="mt-4 leading-7 text-white/60">
+                <p className="mt-4 flex-1 leading-7 text-white/60">
 
                   {point.desc}
 
                 </p>
-                                <div className="mt-8 flex items-center justify-between">
+                                <div className="mt-auto flex items-center justify-between pt-8">
 
                   <span className="text-sm font-medium text-[#F6C453]">
 
