@@ -132,15 +132,11 @@ export function ProductCard({
 
         </h3>
 
-        {item.description && (
-
-          <p className="text-xs sm:text-sm text-white/55 leading-5 sm:leading-6 line-clamp-2 mb-3 sm:mb-5">
-
-            {item.description}
-
-          </p>
-
-        )}
+        <p className="min-h-[48px] sm:min-h-[56px] text-xs sm:text-sm text-white/55 leading-5 sm:leading-6 line-clamp-2 mb-3 sm:mb-5">
+          
+          {item.description || "\u00A0"}
+          
+        </p>
 
         <div className="flex items-end justify-between">
 
