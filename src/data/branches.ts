@@ -66,6 +66,7 @@ export const brand = {
   social: {
     instagram: "https://www.instagram.com/dapizzahubpanki/",
     facebook: "https://www.facebook.com/dapizzahubpankii/?ref=NONE_xav_ig_profile_page_web#",
+    twitter: "#", // client doesn't have a Twitter account
   },
   footerLink: {
     label: "Upfigure",
