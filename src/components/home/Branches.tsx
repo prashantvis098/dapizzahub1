@@ -11,10 +11,10 @@ import { requestUserLocation, rankBranchesByDistance, BranchWithDistance } from 
 import { Branch } from "@/types";
 
 const branchImages = [
-  "/images/pizza-generic/pizza-13.webp",
-  "/images/pizza-generic/pizza-14.webp",
-  "/images/pizza-generic/pizza-15.webp",
-  "/images/pizza-generic/pizza-16.webp",
+  "/images/branches/panki.webp",
+  "/images/branches/raniya.webp",
+  "/images/branches/rasulabad.webp",
+  "/images/branches/jhinjhak.webp",
 ];
 
 // Small inline glyphs for Swiggy/Zomato — kept as simple monograms rather

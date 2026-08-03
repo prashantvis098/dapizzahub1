@@ -10,11 +10,11 @@ import { Branch } from "@/types";
 // they've since been listed.
 export const branches: Branch[] = [
   {
-    id: "panki",
+    id: "Panki",
     name: "Da Pizza Hub – Panki",
     address: "Shop No. 9, K.D.A. Market, Near MIG Police Chowki, Panki, Kanpur (U.P.)",
-    phone: "9910944984",
-    whatsapp: "919910944984",
+    phone: "8081664965",
+    whatsapp: "918081664965",
     mapsUrl: "https://maps.app.goo.gl/gieCWMwTnQwa9QtY8",
     swiggyUrl: "https://www.swiggy.com/city/kanpur/da-pizza-hub-panki-rest157167", // PANKI_BRANCH_TODO: replace with real Da Pizza Hub Panki Swiggy store link
     zomatoUrl: "https://www.zomato.com/kanpur/da-pizza-hub-2-panki", // PANKI_BRANCH_TODO: replace with real Da Pizza Hub Panki Zomato store link
@@ -22,32 +22,32 @@ export const branches: Branch[] = [
     lng: 80.2530,
   },
   {
-    id: "branch-2",
-    name: "Da Pizza Hub – Branch 2", // PANKI_BRANCH_TODO: replace with real branch name
-    address: "Address to be updated", // PANKI_BRANCH_TODO
-    phone: "8081664919",
-    whatsapp: "918081664919",
-    mapsUrl: "https://maps.app.goo.gl/43i7fHDCu3iUFupr9",
+    id: "Raniya",
+    name: "Da Pizza Hub – Raniya", // PANKI_BRANCH_TODO: replace with real branch name
+    address: "Raniya, Bhaunti, Rania, Uttar Pradesh 209305", // PANKI_BRANCH_TODO
+    phone: "6393758677",
+    whatsapp: "916393758677",
+    mapsUrl: "https://maps.app.goo.gl/2y6Vdo9wDmqG9ZH47",
     lat: 26.4499,
     lng: 80.3319,
   },
   {
-    id: "branch-3",
-    name: "Da Pizza Hub – Branch 3", // PANKI_BRANCH_TODO
-    address: "Address to be updated", // PANKI_BRANCH_TODO
-    phone: "9910944984",
-    whatsapp: "919910944984",
-    mapsUrl: "https://maps.app.goo.gl/MVqtd8vU8dfzfQ5E7",
+    id: "Rasulabad",
+    name: "Da Pizza Hub – Rasulabad", // PANKI_BRANCH_TODO: replace with real branch name
+    address: "SR Petrol Pump, Kanpur Road, Rasulabad, Uttar Pradesh 209306", // PANKI_BRANCH_TODO
+    phone: "8318574525",
+    whatsapp: "918318574525",
+    mapsUrl: "https://maps.app.goo.gl/b3mWm1nudbUdBMoM6",
     lat: 26.4620,
     lng: 80.3450,
   },
   {
-    id: "branch-4",
-    name: "Da Pizza Hub – Branch 4", // PANKI_BRANCH_TODO
-    address: "Address to be updated", // PANKI_BRANCH_TODO
-    phone: "73070295003".slice(0, 10),
-    whatsapp: "917307029500",
-    mapsUrl: "https://maps.app.goo.gl/Kab4hfsDGffixZeX8",
+    id: "Jhinjhak",
+    name: "Da Pizza Hub – Jhinjhak", // PANKI_BRANCH_TODO
+    address: "Da Pizza Hub, Jhinjhak, Uttar Pradesh 209302",// PANKI_BRANCH_TODO
+    phone: "9120609857".slice(0, 10),
+    whatsapp: "919120609857",
+    mapsUrl: "https://maps.app.goo.gl/hRR8qpaoaBX3VjBs8",
     lat: 26.4380,
     lng: 80.3120,
   },
@@ -66,7 +66,6 @@ export const brand = {
   social: {
     instagram: "https://www.instagram.com/dapizzahubpanki/",
     facebook: "https://www.facebook.com/dapizzahubpankii/?ref=NONE_xav_ig_profile_page_web#",
-    twitter: "https://twitter.com",
   },
   footerLink: {
     label: "Upfigure",
@@ -78,7 +77,7 @@ export const brand = {
   // "FOUNDER_TODO" to find everything to swap out.
   founders: {
     names: "The Founders", // FOUNDER_TODO: replace with real names
-    photo: "/images/pizza-generic/pizza-1.webp", // FOUNDER_TODO: replace with real founder photo
+    photo: "/images/founder/husband-wife.webp", // FOUNDER_TODO: replace with real founder photo
     yearsInBusiness: 9,
     story: [
       "Da Pizza Hub began nearly a decade ago with a simple idea: pure vegetarian pizza that didn't compromise on taste, freshness, or honesty about what goes into it.",
