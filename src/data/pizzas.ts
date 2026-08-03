@@ -28,7 +28,7 @@ export const pizzas: PizzaItem[] = [
     description: "Onion, red pepper, capsicum, corn, jalapeno, spicy tandoori sauce",
     category: "royal-special",
     prices: { regular: 250, medium: 430, large: 599 },
-    image: "/images/pizza-generic/pizza-1.webp",
+    image: "/images/pizza-named/tandoori-pizza.webp",
     type: "pizza",
   },
   {
@@ -37,7 +37,7 @@ export const pizzas: PizzaItem[] = [
     description: "Onion, capsicum, mushroom, corn, black olive, jalapeno, tomato, extra cheese",
     category: "royal-special",
     prices: { regular: 250, medium: 430, large: 599 },
-    image: "/images/pizza-generic/pizza-2.webp",
+    image: "/images/pizza-named/veg-extra-vaganza.webp",
     type: "pizza",
   },
   {
@@ -46,7 +46,7 @@ export const pizzas: PizzaItem[] = [
     description: "Onion, red pepper, capsicum, jalapeno, spicy tandoori paneer",
     category: "royal-special",
     prices: { regular: 250, medium: 430, large: 599 },
-    image: "/images/pizza-generic/pizza-3.webp",
+    image: "/images/pizza-named/tandoori-paneer-pizza.webp",
     type: "pizza",
   },
 
@@ -135,7 +135,7 @@ export const pizzas: PizzaItem[] = [
     description: "Corn, jalapeno & tomato",
     category: "veg-delight",
     prices: { regular: 169, medium: 329, large: 479 },
-    image: "/images/pizza-generic/pizza-4.webp",
+    image: "/images/pizza-named/spicy-triple-tangy-twist.webp",
     type: "pizza",
   },
   {
@@ -173,7 +173,7 @@ export const pizzas: PizzaItem[] = [
     description: "Double cheese, extra cheese",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-5.webp",
+    image: "/images/pizza-named/double-cheese-margherita.webp",
     type: "pizza",
     isBestSeller: true,
   },
@@ -183,7 +183,7 @@ export const pizzas: PizzaItem[] = [
     description: "Onion & capsicum",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-6.webp",
+    image: "/images/pizza-named/fresh-veggie.webp",
     type: "pizza",
   },
   {
@@ -192,7 +192,7 @@ export const pizzas: PizzaItem[] = [
     description: "Corn & cheese",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-7.webp",
+    image: "/images/pizza-named/cheese-and-corn.webp",
     type: "pizza",
   },
   {
@@ -201,7 +201,7 @@ export const pizzas: PizzaItem[] = [
     description: "Paneer & cheese",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-8.webp",
+    image: "/images/pizza-named/cheese-and-paneer.webp",
     type: "pizza",
   },
   {
@@ -210,7 +210,7 @@ export const pizzas: PizzaItem[] = [
     description: "Mushroom & cheese",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-9.webp",
+    image: "/images/pizza-named/cheese-mushroom.webp",
     type: "pizza",
   },
   {
@@ -219,7 +219,7 @@ export const pizzas: PizzaItem[] = [
     description: "Cheese & red pepper",
     category: "veg-treat",
     prices: { regular: 149, medium: 299, large: 449 },
-    image: "/images/pizza-generic/pizza-10.webp",
+    image: "/images/pizza-named/cheese-and-redpepper.webp",
     type: "pizza",
     isNew: true,
   },
@@ -231,7 +231,7 @@ export const pizzas: PizzaItem[] = [
     description: "Single cheese topping",
     category: "simply-veg",
     prices: { regular: 120, medium: 229, large: 369 },
-    image: "/images/pizza-generic/pizza-11.webp",
+    image: "/images/pizza-named/margherita.webp",
     type: "pizza",
   },
   {
@@ -240,7 +240,7 @@ export const pizzas: PizzaItem[] = [
     description: "Cheese & tomato",
     category: "simply-veg",
     prices: { regular: 120, medium: 229, large: 369 },
-    image: "/images/pizza-generic/pizza-12.webp",
+    image: "/images/pizza-named/margherita-cheese-tomato.webp",
     type: "pizza",
   },
 ];

@@ -36,27 +36,26 @@ export const pastas: SimpleItem[] = [
   { id: "white-sauce-pasta", name: "White Sauce Pasta", category: "pasta", price: 120, type: "simple", image: "/images/pasta/white-sauce-pasta.webp" },
   { id: "red-sauce-pasta", name: "Red Sauce Pasta", category: "pasta", price: 130, type: "simple", image: "/images/pasta/red-sauce-pasta.webp" },
   { id: "tandoori-sauce-pasta", name: "Tandoori Sauce Pasta", category: "pasta", price: 130, type: "simple", image: "/images/pasta/tandoori-sauce-pasta.webp" },
-  { id: "mix-sauce-pasta", name: "Mix Sauce Pasta", category: "pasta", price: 140, type: "simple", image: "/images/pasta/white-sauce-pasta.webp", isBestSeller: true },
 ];
 
 export const wraps: SimpleItem[] = [
   { id: "indian-veg-wrap", name: "Indian Veg. Wrap", category: "wrap", price: 80, type: "simple", image: "/images/wrap/indian-veg-wrap.webp" },
-  { id: "indian-paneer-wrap", name: "Indian Paneer Wrap", category: "wrap", price: 99, type: "simple", image: "/images/wrap/indian-veg-wrap.webp" },
+  { id: "indian-paneer-wrap", name: "Indian Paneer Wrap", category: "wrap", price: 99, type: "simple", image: "/images/wrap/indian-paneer-wrap.webp" },
   { id: "mexican-aloo-tikki-wrap", name: "Mexican Aloo Tikki Wrap", category: "wrap", price: 99, type: "simple", image: "/images/wrap/mexican-aloo-tikki-wrap.webp" },
 ];
 
 export const breads: SimpleItem[] = [
-  { id: "stuffed-garlic-bread", name: "Stuffed Garlic Bread", category: "bread", price: 130, type: "simple", image: "/images/gallery/insta-1.webp", isBestSeller: true },
-  { id: "garlic-bread", name: "Garlic Bread", category: "bread", price: 80, type: "simple", image: "/images/gallery/insta-2.webp" },
-  { id: "garlic-bread-cheese", name: "Garlic Bread Cheese", category: "bread", price: 110, type: "simple", image: "/images/gallery/insta-3.webp" },
-  { id: "tandoori-garlic", name: "Tandoori Garlic", category: "bread", price: 140, type: "simple", image: "/images/gallery/insta-4.webp" },
-  { id: "cheese-dip", name: "Cheese Dip", category: "bread", price: 30, type: "simple", image: "/images/gallery/insta-5.webp" },
-  { id: "jalapeno-dip", name: "Jalapeno Dip", category: "bread", price: 30, type: "simple", image: "/images/gallery/insta-6.webp" },
+  { id: "stuffed-garlic-bread", name: "Stuffed Garlic Bread", category: "bread", price: 130, type: "simple", image: "/images/bread/stuff-garlic.webp", isBestSeller: true },
+  { id: "garlic-bread", name: "Garlic Bread", category: "bread", price: 80, type: "simple", image: "/images/bread/garlic-bread.webp" },
+  { id: "garlic-bread-cheese", name: "Garlic Bread Cheese", category: "bread", price: 110, type: "simple", image: "/images/bread/chesseg.webp" },
+  { id: "tandoori-garlic", name: "Tandoori Garlic", category: "bread", price: 140, type: "simple", image: "/images/bread/tandoori.webp" },
+  { id: "cheese-dip", name: "Cheese Dip", category: "bread", price: 30, type: "simple", image: "/images/dips/cheese.webp" },
+  { id: "jalapeno-dip", name: "Jalapeno Dip", category: "bread", price: 30, type: "simple", image: "/images/dips/jalapeno.webp" },
 ];
 
 export const otherSides: SimpleItem[] = [
-  { id: "calzone", name: "Calzone", category: "sides-other", price: 110, type: "simple", image: "/images/gallery/insta-7.webp" },
-  { id: "pocket-parcel", name: "Pocket Parcel", category: "sides-other", price: 50, type: "simple", image: "/images/gallery/insta-8.webp" },
+  { id: "calzone", name: "Calzone", category: "sides-other", price: 110, type: "simple", image: "/images/pocket parcel/calzone.webp" },
+  { id: "pocket-parcel", name: "Pocket Parcel", category: "sides-other", price: 50, type: "simple", image: "/images/pocket parcel/pocket-parcel.webp" },
   { id: "cheesy-spicy-twists", name: "Cheesy Spicy Twists", category: "sides-other", price: 90, type: "simple", image: "/images/bread/cheesy-spicy-twists.webp" },
   { id: "cheesy-paneer-spicy-twists", name: "Cheesy Paneer Spicy Twists", category: "sides-other", price: 110, type: "simple", image: "/images/bread/cheesy-paneer-spicy-twists.webp" },
 ];
@@ -86,7 +85,6 @@ export const mocktails: SimpleItem[] = [
   { id: "lemon-ice-tea", name: "Lemon Ice Tea", category: "mocktail", price: 80, type: "simple", image: "/images/mocktail/mocktail-5.webp" },
   { id: "masala-lemonade", name: "Masala Lemonade", category: "mocktail", price: 80, type: "simple", image: "/images/mocktail/mocktail-6.webp" },
   { id: "kala-khatta", name: "Kala Khatta", category: "mocktail", price: 80, type: "simple", image: "/images/mocktail/mocktail-7.webp" },
-  { id: "peach-mojito", name: "Peach Mojito", category: "mocktail", price: 80, type: "simple", image: "/images/mocktail/mocktail-8.webp" },
 ];
 
 export const foodCombos = [
