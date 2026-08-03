@@ -77,7 +77,7 @@ export const brand = {
   // supply the real photo and may want to adjust wording; search
   // "FOUNDER_TODO" to find everything to swap out.
   founders: {
-    names: "The Founders", // FOUNDER_TODO: replace with real names
+    names: "Praveen Dixit", // FOUNDER_TODO: replace with real names
     photo: "/images/founder/husband-wife.webp", // FOUNDER_TODO: replace with real founder photo
     yearsInBusiness: 9,
     story: [
