@@ -1,17 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Wallet, Banknote, ChevronLeft, ShoppingBag, Tag, CheckCircle2 } from "lucide-react";
+import { Wallet, Banknote, ChevronLeft, ShoppingBag, Tag, CheckCircle2 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatINR } from "@/lib/utils";
 import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
 import { ScheduleSelector } from "@/components/checkout/ScheduleSelector";
 import { branches, brand } from "@/data/branches";
+import { Branch } from "@/types";
+import AddressAutocomplete from "@/components/maps/AddressAutocomplete";
+import CurrentLocation from "@/components/checkout/CurrentLocation";
+import { findNearestBranch } from "@/lib/delivery";
 
-const steps = ["Details", "Payment", "Review"];
+const STEPS = ["Details", "Payment", "Review"] as const;
+
+const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
+const MIN_ADDRESS_LENGTH = 6;
+const MIN_NAME_LENGTH = 2;
+
+type PaymentMethod = "cod" | "upi";
+type ScheduleMode = "now" | "scheduled";
+
+interface OrderPlacementError {
+  message: string;
+}
 
 export function CheckoutClient() {
   const router = useRouter();
@@ -27,17 +42,27 @@ export function CheckoutClient() {
 
   const [step, setStep] = useState(1);
   const [isPlacing, setIsPlacing] = useState(false);
+  const [placeOrderError, setPlaceOrderError] = useState<OrderPlacementError | null>(null);
   const [couponInput, setCouponInput] = useState("");
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [branchId, setBranchId] = useState(branches[0].id);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "upi">("cod");
-  const [scheduleMode, setScheduleMode] = useState<"now" | "scheduled">("now");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [scheduleMode, setScheduleMode] = useState<ScheduleMode>("now");
   const [scheduledSlot, setScheduledSlot] = useState<string | null>(null);
 
-  const deliveryFee = 0; // free delivery within 3km per brand spec
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [distance, setDistance] = useState(0);
+  const [selectedBranch, setSelectedBranch] = useState<Branch>(branches[0]);
+  const [deliverable, setDeliverable] = useState(true);
+
+  // Guards against double-submission from rapid double-clicks / double-taps,
+  // which can race ahead of the `isPlacing` state update on slow devices.
+  const isSubmittingRef = useRef(false);
+
   const total = cartTotal + deliveryFee;
   // Minimum order threshold applies to the pre-discount subtotal — this is
   // a standard business rule (coupons shouldn't let someone dodge the
@@ -45,11 +70,23 @@ export function CheckoutClient() {
   const belowMinimum = subtotal < brand.minOrder;
   const amountToUnlock = brand.minOrder - subtotal;
 
-  const detailsValid =
-    name.trim().length > 1 &&
-    phone.trim().length >= 10 &&
-    address.trim().length > 5 &&
-    (scheduleMode === "now" || !!scheduledSlot);
+  const isPhoneValid = INDIAN_MOBILE_REGEX.test(phone);
+  const isNameValid = name.trim().length >= MIN_NAME_LENGTH;
+  const isAddressValid = address.trim().length >= MIN_ADDRESS_LENGTH;
+  const isScheduleValid = scheduleMode === "now" || !!scheduledSlot;
+
+  const detailsValid = isNameValid && isPhoneValid && isAddressValid && isScheduleValid && deliverable;
+
+  const applyBranchResult = useCallback(
+    (result: ReturnType<typeof findNearestBranch>) => {
+      setBranchId(result.branch.id);
+      setSelectedBranch(result.branch);
+      setDistance(result.distance);
+      setDeliveryFee(result.fee);
+      setDeliverable(result.deliverable);
+    },
+    []
+  );
 
   function handleApplyCoupon() {
     if (!couponInput.trim()) return;
@@ -59,14 +96,29 @@ export function CheckoutClient() {
   async function handlePlaceOrder() {
     // Defense-in-depth: cart drawer already nudges below-minimum users, but
     // someone could still land on /checkout directly (deep link, back
-    // button, stale tab) with a sub-minimum cart. Never let the order fire.
-    if (belowMinimum) return;
+    // button, stale tab) with a sub-minimum or non-deliverable cart.
+    if (belowMinimum || !deliverable) return;
+
+    // Belt-and-braces double-submit guard: the button is disabled while
+    // isPlacing is true, but a ref check here closes the tiny window where
+    // two rapid clicks/taps could both fire before the state update commits.
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     setIsPlacing(true);
+    setPlaceOrderError(null);
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // Authoritative inputs — the server must independently look up
+          // the nearest branch, distance, fee, and deliverability from
+          // these coordinates. Never trust distance/fee/deliverable
+          // computed on the client for pricing or acceptance decisions.
+          customerLat: coords?.lat ?? null,
+          customerLng: coords?.lng ?? null,
           branchId,
           customerName: name,
           customerPhone: phone,
@@ -75,36 +127,57 @@ export function CheckoutClient() {
           subtotal,
           discount,
           couponCode: appliedCoupon?.code ?? null,
-          total,
           paymentMethod,
           scheduleMode,
           scheduledFor: scheduleMode === "scheduled" ? scheduledSlot : null,
+          // Debug-only echoes of what the client displayed. The server
+          // should recompute these itself and may log a mismatch, but
+          // must not use these values to price or accept the order.
+          debugClientBranchName: selectedBranch.name,
+          debugClientDistance: distance,
+          debugClientDeliveryFee: deliveryFee,
+          debugClientDeliverable: deliverable,
+          debugClientTotal: total,
         }),
       });
+
+      if (!res.ok) {
+        throw new Error(`Order request failed with status ${res.status}`);
+      }
+
       const data = await res.json();
 
-      if (data.success) {
-        const orderData = {
-          orderId: data.orderId,
-          name,
-          phone,
-          address,
-          branchId,
-          total,
-          paymentMethod,
-          lines,
-          placedAt: Date.now(),
-          scheduleMode,
-          scheduledFor: scheduleMode === "scheduled" ? scheduledSlot : null,
-        };
-        sessionStorage.setItem("dph_last_order", JSON.stringify(orderData));
-        clearCart();
-        router.push("/order-confirmed");
+      if (!data.success) {
+        setPlaceOrderError({
+          message: data.message || "We couldn't place your order. Please try again.",
+        });
+        return;
       }
+
+      const orderData = {
+        orderId: data.orderId,
+        name,
+        phone,
+        address,
+        branchId,
+        total: data.total ?? total,
+        paymentMethod,
+        lines,
+        placedAt: Date.now(),
+        scheduleMode,
+        scheduledFor: scheduleMode === "scheduled" ? scheduledSlot : null,
+      };
+      sessionStorage.setItem("dph_last_order", JSON.stringify(orderData));
+      clearCart();
+      router.push("/order-confirmed");
     } catch (e) {
       console.error(e);
+      setPlaceOrderError({
+        message: "Something went wrong while placing your order. Please check your connection and try again.",
+      });
     } finally {
       setIsPlacing(false);
+      isSubmittingRef.current = false;
     }
   }
 
@@ -132,7 +205,7 @@ export function CheckoutClient() {
           Checkout
         </h1>
 
-        <CheckoutStepper currentStep={step} steps={steps} />
+        <CheckoutStepper currentStep={step} steps={[...STEPS]} />
 
         <AnimatePresence mode="wait">
           {step === 1 && (
@@ -149,45 +222,66 @@ export function CheckoutClient() {
                       className="input-field"
                     />
                   </Field>
-                  <Field label="Phone Number">
+                  <Field label="Phone Number" error={phone.length > 0 && !isPhoneValid ? "Enter a valid 10-digit mobile number" : undefined}>
                     <input
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="10-digit mobile number"
                       type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       className="input-field"
                     />
                   </Field>
                   <Field label="Delivery Address">
-                    <textarea
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Flat / House no., street, landmark, area"
-                      rows={3}
-                      className="input-field resize-none"
-                    />
-                  </Field>
-                </div>
+                    <div className="space-y-3">
 
-                <h3 className="text-sm font-semibold text-ink-secondary mb-3">Nearest Branch</h3>
-                <div className="grid gap-2.5 mb-6">
-                  {branches.map((b) => (
-                    <button
-                      key={b.id}
-                      onClick={() => setBranchId(b.id)}
-                      className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all duration-300 ${
-                        branchId === b.id
-                          ? "border-accent bg-accent/10"
-                          : "border-white/10 hover:border-white/25"
-                      }`}
-                    >
-                      <MapPin size={16} className="text-gold mt-0.5 shrink-0" />
-                      <div>
-                        <span className="text-sm font-medium block">{b.name}</span>
-                        <span className="text-xs text-ink-muted">{b.address}</span>
-                      </div>
-                    </button>
-                  ))}
+                      <AddressAutocomplete
+                        value={address}
+                        onChange={setAddress}
+                        onSelect={({ address, lat, lng }) => {
+                          setAddress(address);
+                          setCoords({ lat, lng });
+
+                          const result = findNearestBranch(lat, lng);
+                          applyBranchResult(result);
+                        }}
+                      />
+
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="h-px flex-1 bg-white/10" />
+                      <span className="text-xs text-ink-muted">OR</span>
+                      <div className="h-px flex-1 bg-white/10" />
+                    </div>
+
+                    <CurrentLocation
+                      onLocationFound={async ({ lat, lng }) => {
+                        setCoords({ lat, lng });
+
+                        const result = findNearestBranch(lat, lng);
+                        applyBranchResult(result);
+
+                        const res = await fetch(
+                          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${lat}&lon=${lng}`
+                        );
+
+                        if (!res.ok) {
+                          throw new Error(`Reverse geocoding failed with status ${res.status}`);
+                        }
+
+                        const data = await res.json();
+                        if (!data.display_name) {
+                          throw new Error("Reverse geocoding returned no address");
+                        }
+
+                        setAddress(data.display_name);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    />
+
+                </div>
+              </Field>
+                  
                 </div>
 
                 <ScheduleSelector
@@ -196,6 +290,11 @@ export function CheckoutClient() {
                   selectedSlot={scheduledSlot}
                   onSlotChange={setScheduledSlot}
                 />
+                {!deliverable && (
+                  <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+                    Sorry, we don&apos;t deliver to this address yet.
+                  </div>
+                )}
               </div>
 
               <NavButtons
@@ -331,8 +430,18 @@ export function CheckoutClient() {
                     </div>
                   )}
                   <div className="flex justify-between text-sm text-ink-secondary">
+                    <span>Nearest Branch</span>
+                    <span>{selectedBranch.name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-ink-secondary">
+                    <span>Distance</span>
+                    <span>{distance.toFixed(2)} km</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-ink-secondary">
                     <span>Delivery Fee</span>
-                    <span className="text-gold">Free</span>
+                    <span className="text-gold">
+                      {deliveryFee === 0 ? "FREE" : formatINR(deliveryFee)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2">
                     <span>Total</span>
@@ -346,10 +455,24 @@ export function CheckoutClient() {
                   </div>
                 )}
 
+                {!deliverable && (
+                  <div className="mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+                    Sorry, we don&apos;t deliver to this address yet. Please go back and update your address.
+                  </div>
+                )}
+
+                {placeOrderError && (
+                  <div className="mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+                    {placeOrderError.message}
+                  </div>
+                )}
+
                 <div className="mt-6 pt-6 border-t border-white/5 text-sm text-ink-secondary space-y-1">
                   <p><span className="text-ink-muted">Name:</span> {name}</p>
                   <p><span className="text-ink-muted">Phone:</span> {phone}</p>
-                  <p><span className="text-ink-muted">Address:</span> {address}</p>
+                  <p className="break-words">
+                    <span className="text-ink-muted">Address:</span> {address}
+                  </p>
                   <p><span className="text-ink-muted">Payment:</span> {paymentMethod === "cod" ? "Cash on Delivery" : "UPI"}</p>
                   <p>
                     <span className="text-ink-muted">Delivery:</span>{" "}
@@ -371,7 +494,7 @@ export function CheckoutClient() {
                 onBack={() => setStep(2)}
                 onNext={handlePlaceOrder}
                 nextLabel={isPlacing ? "Placing Order..." : `Place Order — ${formatINR(total)}`}
-                nextDisabled={isPlacing || belowMinimum}
+                nextDisabled={isPlacing || belowMinimum || !deliverable}
               />
             </StepTransition>
           )}
@@ -414,11 +537,20 @@ function StepTransition({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label className="text-xs font-medium text-ink-secondary mb-1.5 block">{label}</label>
       {children}
+      {error && <p className="mt-1.5 text-xs text-accent">{error}</p>}
     </div>
   );
 }

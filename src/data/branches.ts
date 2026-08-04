@@ -18,8 +18,8 @@ export const branches: Branch[] = [
     mapsUrl: "https://maps.app.goo.gl/gieCWMwTnQwa9QtY8",
     swiggyUrl: "https://www.swiggy.com/city/kanpur/da-pizza-hub-panki-rest157167", // PANKI_BRANCH_TODO: replace with real Da Pizza Hub Panki Swiggy store link
     zomatoUrl: "https://www.zomato.com/kanpur/da-pizza-hub-2-panki", // PANKI_BRANCH_TODO: replace with real Da Pizza Hub Panki Zomato store link
-    lat: 26.4726,
-    lng: 80.2530,
+    lat: 26.463651,
+    lng: 80.254735,
   },
   {
     id: "Raniya",
@@ -28,8 +28,8 @@ export const branches: Branch[] = [
     phone: "6393758677",
     whatsapp: "916393758677",
     mapsUrl: "https://maps.app.goo.gl/2y6Vdo9wDmqG9ZH47",
-    lat: 26.4499,
-    lng: 80.3319,
+    lat: 26.406455,
+    lng: 80.074841,
   },
   {
     id: "Rasulabad",
@@ -38,8 +38,8 @@ export const branches: Branch[] = [
     phone: "8318574525",
     whatsapp: "918318574525",
     mapsUrl: "https://maps.app.goo.gl/b3mWm1nudbUdBMoM6",
-    lat: 26.4620,
-    lng: 80.3450,
+    lat: 26.674289,
+    lng: 79.780962,
   },
   {
     id: "Jhinjhak",
@@ -48,8 +48,8 @@ export const branches: Branch[] = [
     phone: "9120609857".slice(0, 10),
     whatsapp: "919120609857",
     mapsUrl: "https://maps.app.goo.gl/hRR8qpaoaBX3VjBs8",
-    lat: 26.4380,
-    lng: 80.3120,
+    lat: 26.559829, 
+    lng: 79.733115,
   },
 ];
 
