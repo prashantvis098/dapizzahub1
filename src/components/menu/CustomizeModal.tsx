@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Minus, Plus } from "lucide-react";
@@ -24,6 +24,20 @@ export function CustomizeModal({ item, onClose }: CustomizeModalProps) {
   const [panBase, setPanBase] = useState(false);
   const [toppings, setToppings] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
+
+  // Reset every customization choice whenever a different pizza is opened
+  // (or the modal is closed) — without this, selections made for the
+  // previous pizza (size, add-ons, toppings, quantity) silently carried
+  // over to the next one, which could add the wrong customization to the
+  // customer's order.
+  useEffect(() => {
+    setSize("medium");
+    setExtraCheese(false);
+    setCheeseBurst(false);
+    setPanBase(false);
+    setToppings([]);
+    setQuantity(1);
+  }, [item?.id]);
 
   const customization: PizzaCustomization = useMemo(
     () => ({ size, extraCheese, cheeseBurst, panBase, extraToppings: toppings }),
