@@ -15,29 +15,36 @@ import {
 import { branches } from "@/data/branches";
 import { buildWhatsAppOrderLink } from "@/lib/whatsapp";
 
-// Small inline glyphs for Swiggy/Zomato — kept as simple monograms rather
-// than importing brand logo assets (avoids licensing/trademark-asset use),
-// same approach as the Branches section.
+// -----------------------------------------------------
+// Swiggy / Zomato badges
+// -----------------------------------------------------
+
 function SwiggyBadge() {
   return (
-    <span className="inline-flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md text-[#FC8019] text-base sm:text-xl font-bold mb-3 sm:mb-5">
+    <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md text-[#FC8019] text-lg sm:text-xl font-bold mb-5">
       S
     </span>
   );
 }
+
 function ZomatoBadge() {
   return (
-    <span className="inline-flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md text-[#E23744] text-base sm:text-xl font-bold mb-3 sm:mb-5">
+    <span className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md text-[#E23744] text-lg sm:text-xl font-bold mb-5">
       Z
     </span>
   );
 }
 
-// Direct-order links use the primary (Panki) branch's contact details —
-// same source of truth as the Branches section (src/data/branches.ts).
-// Looked up by id (not array position) so this stays correct even if the
-// branches array is ever reordered or a new branch is added at the top.
-const primaryBranch = branches.find((b) => b.id === "Panki") ?? branches[0];
+// -----------------------------------------------------
+// Primary branch
+// -----------------------------------------------------
+
+const primaryBranch =
+  branches.find((b) => b.id === "Panki") ?? branches[0];
+
+// -----------------------------------------------------
+// Quick Order
+// -----------------------------------------------------
 
 const quickOrder = [
   {
@@ -74,9 +81,10 @@ const quickOrder = [
   },
 ];
 
-// "Order Now" — direct links to call, WhatsApp, Swiggy & Zomato.
-// Swiggy/Zomato are only listed for the Panki branch (see branches.ts),
-// so these two only render if that branch has the respective URL set.
+// -----------------------------------------------------
+// Order Now
+// -----------------------------------------------------
+
 const orderNowLinks = [
   {
     title: "Call Us",
@@ -124,173 +132,328 @@ const orderNowLinks = [
     : []),
 ];
 
+// -----------------------------------------------------
+// Component
+// -----------------------------------------------------
+
 export function QuickOrder() {
   return (
-    <section className="py-24 bg-bg">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-bg py-16 sm:py-20 lg:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
-        <div className="mb-12">
+        {/* =================================================
+            QUICK ORDER HEADER
+        ================================================= */}
+
+        <div className="mb-8 sm:mb-10 lg:mb-12">
           <p className="uppercase tracking-[0.35em] text-gold text-xs mb-3">
             Quick Order
           </p>
 
-          <h2 className="text-4xl font-heading">
-            Choose How You'd Like To Order
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading leading-tight">
+            Choose How You&apos;d Like To Order
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
+        {/* =================================================
+            QUICK ORDER CARDS
+        ================================================= */}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
 
           {quickOrder.map((item, index) => {
-
             const Icon = item.icon;
 
             return (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0.15 }}
                 transition={{
-                  duration: .6,
-                  delay: index * .1,
+                  duration: 0.55,
+                  delay: index * 0.08,
                 }}
+                className="h-full"
               >
-
                 <Link
                   href={item.href}
-                  className="group relative overflow-hidden rounded-3xl h-[290px] block border border-white/10"
+                  className="
+                    group
+                    relative
+                    overflow-hidden
+                    rounded-3xl
+                    h-[300px]
+                    sm:h-[310px]
+                    block
+                    border
+                    border-white/10
+                  "
                 >
+
+                  {/* Image */}
 
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
-                    className="object-cover group-hover:scale-110 duration-700"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="
+                      object-cover
+                      transition-transform
+                      duration-700
+                      group-hover:scale-110
+                    "
                   />
+
+                  {/* Gradient */}
 
                   <div
                     className={`absolute inset-0 bg-gradient-to-t ${item.color}`}
                   />
 
-                  <div className="absolute inset-0 bg-black/20" />
+                  {/* Dark overlay */}
 
-                  <div className="relative z-10 flex flex-col justify-between h-full p-7">
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
+
+                  {/* Content */}
+
+                  <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-7">
+
+                    {/* Top Content */}
 
                     <div>
 
-                      <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-5">
-
+                      <div className="
+                        w-14
+                        h-14
+                        rounded-2xl
+                        bg-white/10
+                        backdrop-blur-md
+                        flex
+                        items-center
+                        justify-center
+                        mb-5
+                      ">
                         <Icon size={24} />
-
                       </div>
 
                       <h3 className="text-2xl font-bold mb-3">
                         {item.title}
                       </h3>
 
-                      <p className="text-white/75 leading-relaxed">
+                      <p className="text-white/75 leading-relaxed max-w-[240px]">
                         {item.desc}
                       </p>
 
                     </div>
 
+                    {/* Bottom */}
+
                     <div className="flex items-center justify-between">
 
-                      <span className="text-sm uppercase tracking-widest text-white/70">
+                      <span className="text-xs sm:text-sm uppercase tracking-[0.2em] text-white/70">
                         Explore
                       </span>
 
-                      <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center group-hover:translate-x-2 duration-300">
-
+                      <div className="
+                        w-11
+                        h-11
+                        sm:w-12
+                        sm:h-12
+                        rounded-full
+                        bg-white
+                        text-black
+                        flex
+                        items-center
+                        justify-center
+                        transition-transform
+                        duration-300
+                        group-hover:translate-x-1.5
+                      ">
                         <ArrowRight size={18} />
-
                       </div>
 
                     </div>
 
                   </div>
-
                 </Link>
-
               </motion.div>
             );
           })}
 
         </div>
 
-        <div className="mt-14">
+        {/* =================================================
+            ORDER NOW HEADER
+        ================================================= */}
+
+        <div className="mt-14 sm:mt-16 lg:mt-20 mb-7 sm:mb-8">
+
           <p className="uppercase tracking-[0.35em] text-gold text-xs mb-3">
             Order Now
           </p>
-          <h3 className="text-2xl font-heading mb-8">
+
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading leading-tight">
             Call, Chat, Or Order On Your Favourite App
           </h3>
+
         </div>
 
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
+        {/* =================================================
+            ORDER NOW CARDS
+        ================================================= */}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
 
           {orderNowLinks.map((item, index) => {
 
             const Icon = item.icon;
+
             const linkProps = item.external
-              ? { target: "_blank", rel: "noopener noreferrer" as const }
+              ? {
+                  target: "_blank",
+                  rel: "noopener noreferrer" as const,
+                }
               : {};
 
             return (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0.15 }}
                 transition={{
-                  duration: .6,
-                  delay: index * .1,
+                  duration: 0.55,
+                  delay: index * 0.08,
                 }}
+                className="h-full"
               >
 
                 <a
                   href={item.href}
                   {...linkProps}
-                  className={`group relative overflow-hidden rounded-3xl h-[240px] sm:h-[220px] block border border-white/10 bg-gradient-to-br ${item.color}`}
+                  className={`
+                    group
+                    relative
+                    overflow-hidden
+                    rounded-3xl
+                    h-[270px]
+                    sm:h-[280px]
+                    block
+                    border
+                    border-white/10
+                    bg-gradient-to-br
+                    ${item.color}
+                    transition-all
+                    duration-300
+                    hover:-translate-y-1
+                  `}
                 >
 
-                  <div className="absolute inset-0 bg-black/10" />
+                  {/* Overlay */}
 
-                  <div className="relative z-10 flex flex-col justify-between h-full p-5 sm:p-7">
+                  <div className="
+                    absolute
+                    inset-0
+                    bg-black/10
+                    group-hover:bg-black/5
+                    transition-colors
+                    duration-300
+                  " />
+
+                  {/* Card Content */}
+
+                  <div className="
+                    relative
+                    z-10
+                    flex
+                    flex-col
+                    justify-between
+                    h-full
+                    p-6
+                    sm:p-7
+                  ">
+
+                    {/* TOP */}
 
                     <div>
 
                       {item.isBadge ? (
                         <Icon />
                       ) : (
-                        <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-3 sm:mb-5">
-                          <Icon size={20} className="sm:hidden" />
-                          <Icon size={24} className="hidden sm:block" />
+                        <div className="
+                          w-12
+                          h-12
+                          sm:w-14
+                          sm:h-14
+                          rounded-2xl
+                          bg-white/10
+                          backdrop-blur-md
+                          flex
+                          items-center
+                          justify-center
+                          mb-5
+                        ">
+                          <Icon size={22} />
                         </div>
                       )}
 
-                      <h3 className="text-lg sm:text-2xl font-bold mb-1.5 sm:mb-2">
+                      <h3 className="
+                        text-xl
+                        sm:text-2xl
+                        font-bold
+                        mb-2
+                      ">
                         {item.title}
                       </h3>
 
-                      <p className="text-white/75 leading-snug sm:leading-relaxed text-xs sm:text-sm line-clamp-2">
+                      <p className="
+                        text-white/75
+                        text-sm
+                        leading-relaxed
+                        max-w-[240px]
+                      ">
                         {item.desc}
                       </p>
 
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    {/* BOTTOM */}
 
-                      <span className="text-xs sm:text-sm uppercase tracking-widest text-white/70">
+                    <div className="
+                      flex
+                      items-center
+                      justify-between
+                      pt-6
+                    ">
+
+                      <span className="
+                        text-xs
+                        sm:text-sm
+                        uppercase
+                        tracking-[0.2em]
+                        text-white/70
+                      ">
                         {item.external ? "Open" : "Call"}
                       </span>
 
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white text-black flex items-center justify-center group-hover:translate-x-2 duration-300">
-
-                        <ArrowRight size={16} className="sm:hidden" />
-                        <ArrowRight size={18} className="hidden sm:block" />
-
+                      <div className="
+                        w-11
+                        h-11
+                        sm:w-12
+                        sm:h-12
+                        rounded-full
+                        bg-white
+                        text-black
+                        flex
+                        items-center
+                        justify-center
+                        transition-transform
+                        duration-300
+                        group-hover:translate-x-1.5
+                      ">
+                        <ArrowRight size={18} />
                       </div>
 
                     </div>
