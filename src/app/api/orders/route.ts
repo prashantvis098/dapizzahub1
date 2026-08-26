@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { pushOrderToPetpooja } from "@/lib/petpooja";
 import { generateOrderNumber } from "@/lib/utils";
 import { findNearestBranch } from "@/lib/delivery";
 import { pool, isDatabaseConfigured } from "@/lib/db";
@@ -21,9 +20,11 @@ import { CartLine } from "@/types";
  *      client-submitted ones.
  *   3. Generates an order number and saves the order to Postgres (see
  *      src/lib/db.ts) so it appears on /admin/orders in real time.
- *   4. Attempts to push the order to Petpooja (safe no-op until real
- *      Petpooja credentials are added — see src/lib/petpooja.ts).
- *   5. Returns the order number + authoritative total.
+ *   4. Returns the order number + authoritative total immediately.
+ *
+ * Petpooja is intentionally NOT called here. This restaurant does not have
+ * a Petpooja API integration, so the Neon database + Admin Dashboard is the
+ * source of truth for incoming orders.
  *
  * If DATABASE_URL isn't configured yet, the order is NOT silently
  * dropped — the request fails with a clear error instead, since an order
@@ -93,7 +94,6 @@ export async function POST(request: NextRequest) {
             deliveryFee: Number(row.delivery_fee),
             total: Number(row.total),
             branchId: row.branch_id,
-            petpooja: { pushed: false, reason: "duplicate_submission_returned_existing_order" },
           });
         }
       } catch (err) {
@@ -273,7 +273,6 @@ export async function POST(request: NextRequest) {
                 deliveryFee: Number(row.delivery_fee),
                 total: Number(row.total),
                 branchId: row.branch_id,
-                petpooja: { pushed: false, reason: "duplicate_submission_returned_existing_order" },
               });
             }
           }
@@ -302,17 +301,6 @@ export async function POST(request: NextRequest) {
         .catch((err) => console.error("[POST /api/orders] failed to increment coupon usage:", err));
     }
 
-    const petpoojaResult = await pushOrderToPetpooja({
-      orderId,
-      branchId: resolvedBranchId,
-      customerName,
-      customerPhone,
-      deliveryAddress: isPickup ? "Pickup" : deliveryAddress ?? "",
-      items: lines,
-      subtotal: total,
-      paymentMethod: paymentMethod === "upi" ? "upi" : "cod",
-    });
-
     return NextResponse.json({
       success: true,
       orderId,
@@ -321,7 +309,6 @@ export async function POST(request: NextRequest) {
       deliveryFee,
       total,
       branchId: resolvedBranchId,
-      petpooja: petpoojaResult,
     });
   } catch (error) {
     console.error("[POST /api/orders]", error);
