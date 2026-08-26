@@ -4,6 +4,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { brand } from "@/data/branches";
+import { formatINR } from "@/lib/utils";
 
 const faqs = [
   {
@@ -13,13 +15,12 @@ const faqs = [
   },
   {
     question: "What is the minimum order value?",
-    answer:
-      "The minimum order value may vary by location. Please check during checkout or contact our store.",
+    answer: `The minimum order value for delivery is ${formatINR(brand.minOrder)}. There's no minimum for pickup orders.`,
   },
   {
     question: "Which payment methods do you accept?",
     answer:
-      "We accept Cash, UPI, Credit Cards, Debit Cards and most digital payment methods.",
+      "We accept UPI and Cash on Delivery (COD) at checkout, and cash or UPI in person for pickup orders.",
   },
   {
     question: "Do you provide party or bulk orders?",

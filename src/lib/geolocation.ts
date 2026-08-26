@@ -1,5 +1,5 @@
 import { Branch } from "@/types";
-import { branches, brand } from "@/data/branches";
+import { brand } from "@/data/branches";
 
 /**
  * Haversine formula — distance between two lat/lng points in kilometers.
@@ -24,7 +24,15 @@ export interface BranchWithDistance extends Branch {
   withinRadius: boolean;
 }
 
-export function rankBranchesByDistance(userLat: number, userLng: number): BranchWithDistance[] {
+// Takes the branch list as a parameter (rather than importing the static
+// src/data/branches.ts directly) so callers can pass in the live,
+// database-backed branch list fetched via src/lib/data.ts — meaning a
+// branch added/edited from /admin/branches is included here too.
+export function rankBranchesByDistance(
+  branches: Branch[],
+  userLat: number,
+  userLng: number
+): BranchWithDistance[] {
   return branches
     .map((b) => {
       const d = distanceKm(userLat, userLng, b.lat, b.lng);

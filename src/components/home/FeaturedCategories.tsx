@@ -4,67 +4,88 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import type { MenuItem, MenuCategory } from "@/types";
 
-const categories = [
+interface FeaturedCategoriesProps {
+  // Fetched server-side in src/app/page.tsx (see src/lib/data.ts) rather
+  // than imported directly, so these counts stay accurate as items are
+  // added/removed from /admin/menu — this card previously hardcoded
+  // counts that drifted as much as 9x from the real menu (e.g. showing
+  // "9+ Items" for Desserts when only 1 existed).
+  menuItems: MenuItem[];
+}
+
+const CATEGORY_CARD_CONFIG: {
+  name: string;
+  image: string;
+  href: string;
+  categories: MenuCategory[];
+  glow: string;
+}[] = [
   {
     name: "Pizza",
     image: "/images/pizza-generic/pizza-6.webp",
     href: "/menu?cat=pizza",
-    items: "35+ Items",
+    categories: ["royal-special", "veg-special", "veg-feast", "veg-delight", "veg-treat", "simply-veg"],
     glow: "from-[#FF6B00] to-[#D91F26]",
   },
   {
     name: "Burger",
     image: "/images/burger/cheese-burger.webp",
     href: "/menu?cat=burger",
-    items: "12+ Items",
+    categories: ["burger"],
     glow: "from-[#D91F26] to-[#7A0F16]",
   },
   {
     name: "Pasta",
     image: "/images/pasta/white-sauce-pasta.webp",
     href: "/menu?cat=pasta",
-    items: "8+ Items",
+    categories: ["pasta"],
     glow: "from-[#F6C453] to-[#D99C1A]",
   },
   {
     name: "Garlic Bread",
     image: "/images/bread/garlic-bread.webp",
     href: "/menu?cat=bread",
-    items: "10+ Items",
+    categories: ["bread"],
     glow: "from-[#C58B45] to-[#8C5A2B]",
   },
   {
     name: "Wraps",
     image: "/images/wrap/indian-veg-wrap.webp",
     href: "/menu?cat=wrap",
-    items: "7+ Items",
+    categories: ["wrap"],
     glow: "from-[#E56B2E] to-[#A63C06]",
   },
   {
     name: "Mocktails",
     image: "/images/mocktail/mocktail-1.webp",
     href: "/menu?cat=mocktail",
-    items: "15+ Items",
+    categories: ["mocktail"],
     glow: "from-[#27AE60] to-[#0B6B34]",
   },
   {
     name: "Shakes",
     image: "/images/shake/chocolate-shake.webp",
     href: "/menu?cat=shake",
-    items: "14+ Items",
+    categories: ["shake"],
     glow: "from-[#7E57C2] to-[#4527A0]",
   },
   {
     name: "Desserts",
     image: "/images/dessert/choco-lava-cake.webp",
     href: "/menu?cat=dessert",
-    items: "9+ Items",
+    categories: ["dessert"],
     glow: "from-[#F6C453] to-[#B8860B]",
   },
 ];
 
-export function FeaturedCategories() {
+export function FeaturedCategories({ menuItems }: FeaturedCategoriesProps) {
+  const categories = CATEGORY_CARD_CONFIG.map((config) => {
+    const count = menuItems.filter((item) => config.categories.includes(item.category)).length;
+    return { ...config, items: `${count}+ Items` };
+  });
+
   return (
     <section className="relative overflow-hidden bg-bg py-28">
       <div className="mx-auto max-w-7xl px-6">

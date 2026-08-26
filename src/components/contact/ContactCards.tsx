@@ -9,39 +9,52 @@ import {
   MapPin,
   ArrowUpRight,
 } from "lucide-react";
+import { buildWhatsAppOrderLink } from "@/lib/whatsapp";
+import type { Branch } from "@/types";
 
-const cards = [
-  {
-    icon: Phone,
-    title: "Call Us",
-    value: "+91 80818 71440",
-    href: "tel:+918081871440",
-    color: "from-[#D91F26] to-[#FF6B00]",
-  },
-  {
-    icon: MessageCircle,
-    title: "WhatsApp",
-    value: "Chat With Us",
-    href: "https://wa.me/918081871440",
-    color: "from-[#25D366] to-[#1EBE57]",
-  },
-  {
-    icon: Mail,
-    title: "Email",
-    value: "contact@dapizzahub.com",
-    href: "mailto:contact@dapizzahub.com",
-    color: "from-[#F6C453] to-[#FF9F1A]",
-  },
-  {
-    icon: MapPin,
-    title: "Visit Store",
-    value: "Panki, Kanpur",
-    href: "https://maps.google.com",
-    color: "from-[#8B5CF6] to-[#EC4899]",
-  },
-];
+interface ContactCardsProps {
+  /** Branches fetched server-side (DB-backed when configured, otherwise
+   * the static fallback — see getBranches() in src/lib/data.ts), so
+   * admin edits to phone/WhatsApp/maps link are reflected here instead
+   * of a stale copy of the original static data. */
+  branches: Branch[];
+}
 
-export function ContactCards() {
+export function ContactCards({ branches }: ContactCardsProps) {
+  const primaryBranch =
+    branches.find((b) => b.id === "Panki") ?? branches[0];
+
+  const cards = [
+    {
+      icon: Phone,
+      title: "Call Us",
+      value: `+91 ${primaryBranch.phone.slice(0, 5)} ${primaryBranch.phone.slice(5)}`,
+      href: `tel:+91${primaryBranch.phone}`,
+      color: "from-[#D91F26] to-[#FF6B00]",
+    },
+    {
+      icon: MessageCircle,
+      title: "WhatsApp",
+      value: "Chat With Us",
+      href: buildWhatsAppOrderLink(primaryBranch.whatsapp),
+      color: "from-[#25D366] to-[#1EBE57]",
+    },
+    {
+      icon: Mail,
+      title: "Email",
+      value: "contact@dapizzahub.com",
+      href: "mailto:contact@dapizzahub.com",
+      color: "from-[#F6C453] to-[#FF9F1A]",
+    },
+    {
+      icon: MapPin,
+      title: "Visit Store",
+      value: "Panki, Kanpur",
+      href: primaryBranch.mapsUrl,
+      color: "from-[#8B5CF6] to-[#EC4899]",
+    },
+  ];
+
   return (
     <section className="relative py-24">
 
@@ -64,7 +77,7 @@ export function ContactCards() {
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/60">
 
             Choose the most convenient way to connect with our team.
-            We're always happy to help.
+            We&apos;re always happy to help.
 
           </p>
 

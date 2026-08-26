@@ -18,9 +18,9 @@ const offers = [
   },
   {
     title: "FREE DELIVERY",
-    subtitle: "Orders Above ₹299",
+    subtitle: "Within 3 KM Radius",
     description:
-      "Hot, fresh and fast delivery right to your doorstep with every qualifying order.",
+      "Hot, fresh and fast delivery right to your doorstep — free within 3 km of your nearest branch.",
     image: "/images/offers/offer-2.webp",
     badge: "HOT DEAL",
     button: "Order Now",
@@ -55,7 +55,7 @@ export function Offers() {
             </p>
 
             <h2 className="font-heading text-5xl lg:text-6xl">
-              Today's Best Deals
+              Today&apos;s Best Deals
             </h2>
 
           </div>

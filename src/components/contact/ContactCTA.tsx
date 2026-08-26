@@ -8,8 +8,15 @@ import {
   ShoppingBag,
   Sparkles,
 } from "lucide-react";
+import type { Branch } from "@/types";
 
-export function ContactCTA() {
+interface ContactCTAProps {
+  /** Primary branch fetched server-side (DB-backed when configured) so
+   * the "Call Now" number reflects admin edits. */
+  primaryBranch: Branch;
+}
+
+export function ContactCTA({ primaryBranch }: ContactCTAProps) {
   return (
     <section className="relative overflow-hidden py-32">
 
@@ -127,7 +134,7 @@ export function ContactCTA() {
             </Link>
 
             <a
-              href="tel:+918081871440"
+              href={`tel:+91${primaryBranch.phone}`}
               className="inline-flex h-16 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-10 text-lg font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:bg-white/10 hover:border-[#F6C453]/30"
             >
 

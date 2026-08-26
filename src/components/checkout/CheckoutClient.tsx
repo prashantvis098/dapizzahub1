@@ -63,6 +63,18 @@ export function CheckoutClient() {
   // which can race ahead of the `isPlacing` state update on slow devices.
   const isSubmittingRef = useRef(false);
 
+  // One idempotency key per checkout session, generated once and reused on
+  // every retry of "Place Order" for this cart. If a request times out or
+  // drops mid-flight and the customer taps again, the server recognizes the
+  // same key and returns the original order instead of creating a
+  // duplicate. crypto.randomUUID() is available in all modern browsers;
+  // Date.now()+Math.random() is just a defensive fallback for older ones.
+  const idempotencyKeyRef = useRef<string>(
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+
   const total = cartTotal + deliveryFee;
   // Minimum order threshold applies to the pre-discount subtotal — this is
   // a standard business rule (coupons shouldn't let someone dodge the
@@ -120,6 +132,7 @@ export function CheckoutClient() {
           customerLat: coords?.lat ?? null,
           customerLng: coords?.lng ?? null,
           branchId,
+          orderType: "delivery",
           customerName: name,
           customerPhone: phone,
           deliveryAddress: address,
@@ -130,6 +143,7 @@ export function CheckoutClient() {
           paymentMethod,
           scheduleMode,
           scheduledFor: scheduleMode === "scheduled" ? scheduledSlot : null,
+          idempotencyKey: idempotencyKeyRef.current,
           // Debug-only echoes of what the client displayed. The server
           // should recompute these itself and may log a mismatch, but
           // must not use these values to price or accept the order.
@@ -141,13 +155,9 @@ export function CheckoutClient() {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error(`Order request failed with status ${res.status}`);
-      }
-
       const data = await res.json();
 
-      if (!data.success) {
+      if (!res.ok || !data.success) {
         setPlaceOrderError({
           message: data.message || "We couldn't place your order. Please try again.",
         });
@@ -169,6 +179,13 @@ export function CheckoutClient() {
       };
       sessionStorage.setItem("dph_last_order", JSON.stringify(orderData));
       clearCart();
+      // Rotate the key now that this order succeeded, so if this component
+      // instance is ever reused for another order it won't collide with
+      // this (now-completed) one.
+      idempotencyKeyRef.current =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       router.push("/order-confirmed");
     } catch (e) {
       console.error(e);

@@ -10,6 +10,13 @@ import {
   Clock3,
   Star,
 } from "lucide-react";
+import type { Branch } from "@/types";
+
+interface FinalCTAProps {
+  /** Primary branch fetched server-side (DB-backed when configured) so
+   * the "Call Now" number reflects admin edits. */
+  primaryBranch: Branch;
+}
 
 const container = {
   hidden: {
@@ -38,7 +45,7 @@ const item = {
   },
 };
 
-export function FinalCTA() {
+export function FinalCTA({ primaryBranch }: FinalCTAProps) {
   return (
     <section className="relative overflow-hidden py-32 lg:py-40">
 
@@ -235,7 +242,7 @@ export function FinalCTA() {
             </Link>
 
             <a
-              href="tel:+918081871440"
+              href={`tel:+91${primaryBranch.phone}`}
               className="group inline-flex h-16 items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-10 text-lg font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:border-[#F6C453]/40 hover:bg-white/10 hover:scale-105"
             >
 

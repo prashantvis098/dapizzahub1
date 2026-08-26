@@ -23,6 +23,8 @@ export function CartDrawer() {
   const applyCoupon = useCartStore((s) => s.applyCoupon);
   const removeCoupon = useCartStore((s) => s.removeCoupon);
 
+  const couponLoading = useCartStore((s) => s.couponLoading);
+
   const [couponInput, setCouponInput] = useState("");
 
   const belowMinimum = subtotal > 0 && subtotal < brand.minOrder;
@@ -270,9 +272,10 @@ export function CartDrawer() {
 
         <button
           onClick={handleApplyCoupon}
-          className="rounded-xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] px-5 py-3 text-sm font-semibold text-white transition-all hover:scale-105"
+          disabled={couponLoading || !couponInput.trim()}
+          className="rounded-xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] px-5 py-3 text-sm font-semibold text-white transition-all hover:scale-105 disabled:opacity-50 disabled:pointer-events-none"
         >
-          Apply
+          {couponLoading ? "Checking..." : "Apply"}
         </button>
 
       </div>

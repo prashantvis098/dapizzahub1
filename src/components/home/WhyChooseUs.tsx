@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   Leaf,
   Wheat,
-  Beef,
+  Salad,
   Truck,
   Store,
   ArrowRight,
@@ -17,7 +17,7 @@ const points = [
     desc: "Fresh vegetables and premium cheese sourced daily for every pizza.",
   },
   {
-    icon: Beef,
+    icon: Salad,
     title: "100% Pure Veg",
     desc: "Every recipe is completely vegetarian across all branches.",
   },

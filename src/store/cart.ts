@@ -3,13 +3,19 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { CartLine, PizzaCustomization } from "@/types";
-import { validateCoupon, Coupon } from "@/data/coupons";
+
+interface AppliedCoupon {
+  code: string;
+  discount: number;
+  description: string;
+}
 
 interface CartState {
   lines: CartLine[];
   isOpen: boolean;
-  appliedCoupon: Coupon | null;
+  appliedCoupon: AppliedCoupon | null;
   couponError: string | null;
+  couponLoading: boolean;
   addLine: (line: Omit<CartLine, "lineId">) => void;
   removeLine: (lineId: string) => void;
   updateQuantity: (lineId: string, quantity: number) => void;
@@ -17,7 +23,7 @@ interface CartState {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  applyCoupon: (code: string) => void;
+  applyCoupon: (code: string) => Promise<void>;
   removeCoupon: () => void;
   subtotal: () => number;
   discount: () => number;
@@ -36,6 +42,7 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       appliedCoupon: null,
       couponError: null,
+      couponLoading: false,
 
       addLine: (line) =>
         set((state) => ({
@@ -59,13 +66,42 @@ export const useCartStore = create<CartState>()(
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
 
-      applyCoupon: (code) => {
+      // Validated server-side (see /api/coupons/validate) rather than
+      // against the static src/data/coupons.ts list — this is what makes
+      // discounts actually trustworthy: a tampered client request can no
+      // longer claim a discount that wasn't really earned, since the
+      // order API re-runs this same server-side check when the order is
+      // saved regardless of what the cart displays.
+      applyCoupon: async (code) => {
         const subtotal = get().subtotal();
-        const result = validateCoupon(code, subtotal);
-        if (result.valid) {
-          set({ appliedCoupon: result.coupon, couponError: null });
-        } else {
-          set({ appliedCoupon: null, couponError: result.message });
+        set({ couponLoading: true, couponError: null });
+        try {
+          const res = await fetch("/api/coupons/validate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, subtotal }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            set({
+              appliedCoupon: {
+                code: code.trim().toUpperCase(),
+                discount: data.discount,
+                description: data.description,
+              },
+              couponError: null,
+              couponLoading: false,
+            });
+          } else {
+            set({ appliedCoupon: null, couponError: data.message, couponLoading: false });
+          }
+        } catch {
+          set({
+            appliedCoupon: null,
+            couponError: "Couldn't check that coupon — please try again.",
+            couponLoading: false,
+          });
         }
       },
 
@@ -75,14 +111,14 @@ export const useCartStore = create<CartState>()(
         return get().lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
       },
 
+      // Uses the discount amount captured when the coupon was applied
+      // (from the server). If the cart total drops below the coupon's
+      // minimum order after items are removed, the checkout step
+      // re-validates via the same API before letting the order through,
+      // so a stale display value here can't result in an under-charged
+      // order actually being placed.
       discount: () => {
-        const { appliedCoupon } = get();
-        if (!appliedCoupon) return 0;
-        const subtotal = get().subtotal();
-        const result = validateCoupon(appliedCoupon.code, subtotal);
-        // Re-validate every time in case cart contents changed and the
-        // cart no longer meets the coupon's minOrder threshold.
-        return result.valid ? result.discount : 0;
+        return get().appliedCoupon?.discount ?? 0;
       },
 
       total: () => {

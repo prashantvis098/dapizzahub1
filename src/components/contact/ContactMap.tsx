@@ -2,8 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Navigation, MapPin, Clock, Phone } from "lucide-react";
+import type { Branch } from "@/types";
 
-export function ContactMap() {
+interface ContactMapProps {
+  /** Primary branch fetched server-side (DB-backed when configured) so
+   * the map, address and phone reflect admin edits. */
+  primaryBranch: Branch;
+}
+
+export function ContactMap({ primaryBranch }: ContactMapProps) {
   return (
     <section className="relative py-24">
 
@@ -45,7 +52,7 @@ export function ContactMap() {
           >
 
             <iframe
-              src="https://www.google.com/maps?q=Da+Pizza+Hub+Kanpur&output=embed"
+              src={`https://www.google.com/maps?q=${primaryBranch.lat},${primaryBranch.lng}&z=16&output=embed`}
               className="h-[550px] w-full border-0"
               loading="lazy"
               allowFullScreen
@@ -82,11 +89,7 @@ export function ContactMap() {
 
               <p className="mt-5 leading-8 text-white/60">
 
-                Panki Road,
-
-                <br />
-
-                Kanpur, Uttar Pradesh
+                {primaryBranch.address}
 
               </p>
 
@@ -111,7 +114,7 @@ export function ContactMap() {
 
                   <p className="text-white/60">
 
-                    +91 80818 71440
+                    +91 {primaryBranch.phone.slice(0, 5)} {primaryBranch.phone.slice(5)}
 
                   </p>
 
@@ -147,7 +150,7 @@ export function ContactMap() {
             </div>
 
             <a
-              href="https://maps.google.com"
+              href={primaryBranch.mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-16 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] text-lg font-semibold text-white transition hover:scale-[1.02]"

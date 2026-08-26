@@ -5,9 +5,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, MessageCircle, Clock, Store, Wallet } from "lucide-react";
 import { formatINR, estimatedDeliveryWindow } from "@/lib/utils";
-import { CartLine } from "@/types";
-import { branches } from "@/data/branches";
-import { buildWhatsAppCartLink } from "@/lib/whatsapp";
+import { CartLine, Branch } from "@/types";
+import { buildWhatsAppOrderLink, buildWhatsAppCartMessage } from "@/lib/whatsapp";
 import { OrderTracker } from "@/components/checkout/OrderTracker";
 
 interface OrderData {
@@ -24,7 +23,15 @@ interface OrderData {
   scheduledFor?: string | null;
 }
 
-export function OrderConfirmedClient() {
+interface OrderConfirmedClientProps {
+  /** Branches fetched server-side (DB-backed when configured) — see
+   * getBranches() in src/lib/data.ts — so the branch name shown here and
+   * the WhatsApp confirmation link use the current admin-edited branch
+   * details rather than a frozen copy of the original static data. */
+  branches: Branch[];
+}
+
+export function OrderConfirmedClient({ branches }: OrderConfirmedClientProps) {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [deliveryWindow] = useState(estimatedDeliveryWindow());
 
@@ -48,7 +55,8 @@ export function OrderConfirmedClient() {
   }
 
   const branch = branches.find((b) => b.id === order.branchId) ?? branches[0];
-  const whatsappLink = buildWhatsAppCartLink(order.lines, order.total, order.orderId, order.branchId);
+  const whatsappMessage = buildWhatsAppCartMessage(order.lines, order.total, order.orderId);
+  const whatsappLink = buildWhatsAppOrderLink(branch.whatsapp, whatsappMessage);
 
   return (
     <div className="min-h-screen bg-bg pt-28 pb-24">

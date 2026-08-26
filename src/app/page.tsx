@@ -11,26 +11,35 @@ import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { Branches } from "@/components/home/Branches";
 import { FAQ } from "@/components/home/FAQ";
 import { FinalCTA } from "@/components/home/FinalCTA";
+import { getMenuItems, getBranches } from "@/lib/data";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetched server-side from the database (falls back to the static menu
+  // files if DATABASE_URL isn't configured — see src/lib/data.ts) so
+  // Best Sellers / Categories / Branches reflect admin edits without a
+  // redeploy.
+  const [menuItems, branches] = await Promise.all([getMenuItems(), getBranches()]);
+  const bestSellers = menuItems.filter((item) => item.isBestSeller);
+  const combos = menuItems.filter((item) => item.category === "combo");
+
   return (
     <>
       <Hero />
 
       {/* Quick Actions */}
-      <QuickOrder />
+      <QuickOrder branches={branches} />
 
       {/* Promotional Offers */}
       <Offers />
 
       {/* Browse Categories */}
-      <FeaturedCategories />
+      <FeaturedCategories menuItems={menuItems} />
 
       {/* Most Ordered */}
-      <BestSellers />
+      <BestSellers items={bestSellers} />
 
       {/* Combo Deals */}
-      <Combos />
+      <Combos combos={combos} />
 
       {/* Why Us */}
       <WhyChooseUs />
@@ -45,13 +54,13 @@ export default function HomePage() {
       <InstagramGallery />
 
       {/* Store Locations */}
-      <Branches />
+      <Branches branches={branches} />
 
       {/* FAQ */}
       <FAQ />
 
       {/* Final CTA */}
-      <FinalCTA />
+      <FinalCTA primaryBranch={branches.find((b) => b.id === "Panki") ?? branches[0]} />
     </>
   );
 }

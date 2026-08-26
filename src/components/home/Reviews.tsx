@@ -83,6 +83,12 @@ export function Reviews() {
         </StaggerContainer>
 
         <Reveal delay={0.2} className="mt-10 flex justify-center">
+          {/* REVIEW_LINK_TODO: "https://g.page/r/review" is a placeholder,
+              not a real link to this business's Google listing — replace
+              with this business's actual "Write a review" link from
+              Google Business Profile (Google Maps → this listing → Share
+              → "Write a review" gives a URL like
+              https://g.page/r/XXXXXXXXXXXX/review). */}
           <a
             href="https://g.page/r/review"
             target="_blank"

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Instagram } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import { brand } from "@/data/branches";
 
 const galleryImages = [
   "/images/gallery/insta-11.webp",
@@ -29,11 +30,11 @@ export function InstagramGallery() {
                 Real Food. Real Customers.
               </p>
               <h2 className="font-display text-3xl sm:text-4xl font-semibold">
-                @dapizzahub
+                @dapizzahubpanki
               </h2>
             </div>
             <a
-              href="https://instagram.com"
+              href={brand.social.instagram}
               target="_blank"
               rel="noopener noreferrer"
               className="magnetic-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 text-sm font-semibold hover:bg-white/5 transition-all duration-300"

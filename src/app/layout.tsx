@@ -11,7 +11,8 @@ import { MobileOrderBar } from "@/components/cart/MobileOrderBar";
 
 import { FloatingWhatsApp } from "@/components/ui/FloatingWhatsApp";
 import { AIAssistant } from "@/components/assistant/AIAssistant";
-import { RestaurantSchema } from "@/components/seo/RestaurantSchema"; 
+import { RestaurantSchema } from "@/components/seo/RestaurantSchema";
+import { getBranches } from "@/lib/data";
 
 
 const inter = Inter({
@@ -140,11 +141,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetched once per request here (DB-backed when configured, falls back
+  // to static data otherwise — see getBranches() in src/lib/data.ts) and
+  // passed down, so Footer and FloatingWhatsApp — which render on every
+  // page — reflect admin edits to branch phone/WhatsApp/address instead
+  // of a frozen copy of the original static data.
+  const branches = await getBranches();
+
   return (
     <html
       lang="en"
@@ -157,18 +165,18 @@ export default function RootLayout({
 
           <main>{children}</main>
 
-          <Footer />
+          <Footer branches={branches} />
 
           <CartDrawer />
 
           <MobileOrderBar />
 
-          <FloatingWhatsApp />
+          <FloatingWhatsApp branches={branches} />
 
           <AIAssistant />
 
         </SmoothScrollProvider>
-        <RestaurantSchema />
+        <RestaurantSchema primaryBranch={branches[0]} />
       </body>
     </html>
   );

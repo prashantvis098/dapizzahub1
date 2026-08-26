@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, MessageCircle, MapPin, ExternalLink, Navigation, Loader2, CheckCircle2 } from "lucide-react";
 import { Reveal, StaggerContainer, staggerItem } from "@/components/ui/Reveal";
-import { branches, brand } from "@/data/branches";
+import { brand } from "@/data/branches";
 import { buildWhatsAppOrderLink } from "@/lib/whatsapp";
 import { requestUserLocation, rankBranchesByDistance, BranchWithDistance } from "@/lib/geolocation";
 import { Branch } from "@/types";
@@ -34,7 +34,7 @@ function ZomatoBadge() {
   );
 }
 
-export function Branches() {
+export function Branches({ branches }: { branches: Branch[] }) {
   const [locState, setLocState] = useState<"idle" | "loading" | "done" | "denied" | "unsupported" | "error">("idle");
   const [ranked, setRanked] = useState<BranchWithDistance[] | null>(null);
 
@@ -42,7 +42,7 @@ export function Branches() {
     setLocState("loading");
     const result = await requestUserLocation();
     if (result.status === "success") {
-      setRanked(rankBranchesByDistance(result.lat, result.lng));
+      setRanked(rankBranchesByDistance(branches, result.lat, result.lng));
       setLocState("done");
     } else {
       setLocState(result.status === "denied" ? "denied" : result.status === "unsupported" ? "unsupported" : "error");

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "No message provided." }, { status: 400 });
     }
 
-    const reply = getAssistantReply(message);
+    const reply = await getAssistantReply(message);
     return NextResponse.json({ success: true, reply });
   } catch (error) {
     console.error("[POST /api/assistant]", error);

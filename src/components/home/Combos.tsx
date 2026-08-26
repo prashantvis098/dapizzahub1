@@ -9,9 +9,16 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
-import { pizzaCombos } from "@/data/pizzas";
 import { formatINR } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
+import type { MenuItem } from "@/types";
+
+interface CombosProps {
+  // Fetched server-side (see src/lib/data.ts, filtered to category
+  // 'combo') rather than imported directly, so combos added, priced, or
+  // 86'd from /admin/menu show up here without a redeploy.
+  combos: MenuItem[];
+}
 
 const comboImages: Record<string, string> = {
   "veg-single-combo": "/images/combos/combo-1.webp",
@@ -31,9 +38,18 @@ const comboBadge: Record<string, string> = {
   "veg-special-combo-4": "Mega Feast",
 };
 
-export function Combos() {
+// Fallback for combos added later from the admin panel that aren't in
+// the two maps above (which only cover the original six from the menu
+// PDF) — keeps new combos rendering sensibly instead of showing a
+// broken image or blank badge.
+const DEFAULT_COMBO_IMAGE = "/images/combos/combo-1.webp";
+const DEFAULT_COMBO_BADGE = "Combo Deal";
+
+export function Combos({ combos }: CombosProps) {
   const addLine = useCartStore((s) => s.addLine);
   const openCart = useCartStore((s) => s.openCart);
+
+  if (combos.length === 0) return null;
 
   return (
     <section className="py-28 bg-gradient-to-b from-[#111] via-bg to-[#0a0a0a]">
@@ -62,8 +78,12 @@ export function Combos() {
 
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-          {pizzaCombos.map((combo,index)=>(
+          {combos.map((combo,index)=>{
+            const price = combo.type === "simple" ? combo.price : 0;
+            const image = comboImages[combo.id] ?? combo.image ?? DEFAULT_COMBO_IMAGE;
+            const badge = comboBadge[combo.id] ?? DEFAULT_COMBO_BADGE;
 
+            return (
             <motion.div
 
               key={combo.id}
@@ -99,7 +119,7 @@ export function Combos() {
 
                 <Image
 
-                  src={comboImages[combo.id]}
+                  src={image}
 
                   alt={combo.name}
 
@@ -117,7 +137,7 @@ export function Combos() {
 
                     <Flame size={12} className="inline mr-1"/>
 
-                    {comboBadge[combo.id]}
+                    {badge}
 
                   </span>
 
@@ -155,7 +175,7 @@ export function Combos() {
 
                 <span className="text-4xl font-bold text-white">
 
-                  {formatINR(combo.price)}
+                  {formatINR(price)}
 
                 </span>
 
@@ -225,9 +245,9 @@ export function Combos() {
                   addLine({
                     itemId:combo.id,
                     name:combo.name,
-                    basePrice:combo.price,
+                    basePrice:price,
                     quantity:1,
-                    unitPrice:combo.price,
+                    unitPrice:price,
                   });
 
                   openCart();
@@ -251,8 +271,8 @@ export function Combos() {
             </div>
 
           </motion.div>
-
-          ))}
+            );
+          })}
 
         </div>
 

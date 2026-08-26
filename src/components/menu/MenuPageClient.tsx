@@ -6,43 +6,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { ProductCard } from "@/components/menu/ProductCard";
 import { CustomizeModal } from "@/components/menu/CustomizeModal";
-import { pizzas } from "@/data/pizzas";
-import {
-  burgers,
-  fries,
-  pastas,
-  wraps,
-  breads,
-  otherSides,
-  desserts,
-  shakes,
-  mocktails,
-} from "@/data/food";
 import { flatCategories } from "@/data/categories";
-import { MenuCategory, PizzaItem, SimpleItem } from "@/types";
+import { MenuCategory, MenuItem, PizzaItem, SimpleItem } from "@/types";
 import { StaggerContainer, staggerItem } from "@/components/ui/Reveal";
 
-const allItemsByCategory: Record<MenuCategory, (PizzaItem | SimpleItem)[]> = {
-  "royal-special": pizzas.filter((p) => p.category === "royal-special"),
-  "veg-special": pizzas.filter((p) => p.category === "veg-special"),
-  "veg-feast": pizzas.filter((p) => p.category === "veg-feast"),
-  "veg-delight": pizzas.filter((p) => p.category === "veg-delight"),
-  "veg-treat": pizzas.filter((p) => p.category === "veg-treat"),
-  "simply-veg": pizzas.filter((p) => p.category === "simply-veg"),
-  burger: burgers,
-  fries: fries,
-  pasta: pastas,
-  wrap: wraps,
-  bread: breads,
-  "sides-other": otherSides,
-  shake: shakes,
-  mocktail: mocktails,
-  "double-pizza": [],
-  combo: [],
-  dessert: desserts,
-};
+interface MenuPageClientProps {
+  // Fetched server-side from the database in src/app/menu/page.tsx (see
+  // src/lib/data.ts) — passed in rather than imported directly here so
+  // this stays a plain client component grouping/filtering data it's
+  // given, instead of needing its own database access.
+  items: MenuItem[];
+}
 
-export function MenuPageClient() {
+export function MenuPageClient({ items }: MenuPageClientProps) {
   const searchParams = useSearchParams();
 
   const [activeCategory, setActiveCategory] =
@@ -52,6 +28,15 @@ export function MenuPageClient() {
 
   const [customizeItem, setCustomizeItem] =
     useState<PizzaItem | null>(null);
+
+  const allItemsByCategory = useMemo(() => {
+    const grouped: Partial<Record<MenuCategory, (PizzaItem | SimpleItem)[]>> = {};
+    for (const item of items) {
+      if (!grouped[item.category]) grouped[item.category] = [];
+      grouped[item.category]!.push(item);
+    }
+    return grouped;
+  }, [items]);
 
   useEffect(() => {
     const cat = searchParams.get("cat");
@@ -67,7 +52,7 @@ export function MenuPageClient() {
   }, [searchParams]);
 
   const displayItems = useMemo(() => {
-    let items: (PizzaItem | SimpleItem)[] =
+    let filteredItems: (PizzaItem | SimpleItem)[] =
       activeCategory === "all"
         ? Object.values(allItemsByCategory).flat()
         : allItemsByCategory[activeCategory] ?? [];
@@ -75,7 +60,7 @@ export function MenuPageClient() {
     if (query.trim()) {
       const q = query.toLowerCase();
 
-      items = items.filter(
+      filteredItems = filteredItems.filter(
         (item) =>
           item.name.toLowerCase().includes(q) ||
           ("description" in item &&
@@ -83,8 +68,8 @@ export function MenuPageClient() {
       );
     }
 
-    return items;
-  }, [activeCategory, query]);
+    return filteredItems;
+  }, [activeCategory, query, allItemsByCategory]);
 
   return (
     <div className="min-h-screen pt-28 pb-24 bg-[radial-gradient(circle_at_top,#1b1b1b_0%,#0b0b0b_45%,#050505_100%)]">

@@ -4,10 +4,25 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 import { useState } from "react";
+import { buildWhatsAppOrderLink } from "@/lib/whatsapp";
+import type { Branch } from "@/types";
 
-export function FloatingWhatsApp() {
+interface FloatingWhatsAppProps {
+  /** Branches fetched server-side (DB-backed when configured) so admin
+   * edits to the WhatsApp number take effect here. Optional with a
+   * built-in fallback so this component can still be dropped into a
+   * layout without threading props through every call site. */
+  branches?: Branch[];
+}
+
+export function FloatingWhatsApp({ branches }: FloatingWhatsAppProps) {
+  const primaryBranch = branches?.find((b) => b.id === "Panki") ?? branches?.[0];
 
   const [hovered, setHovered] = useState(false);
+
+  // No branch data available yet (e.g. rendered before props load) —
+  // render nothing rather than link to a stale/undefined number.
+  if (!primaryBranch) return null;
 
   return (
 
@@ -56,7 +71,7 @@ export function FloatingWhatsApp() {
 
       <Link
 
-        href="https://wa.me/918081871440"
+        href={buildWhatsAppOrderLink(primaryBranch.whatsapp)}
 
         target="_blank"
 

@@ -3,8 +3,15 @@
 import { motion } from "framer-motion";
 import { Phone, MapPin, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { Branch } from "@/types";
 
-export function ContactHero() {
+interface ContactHeroProps {
+  /** Primary branch fetched server-side (DB-backed when configured) so
+   * the phone/address shown here reflect admin edits. */
+  primaryBranch: Branch;
+}
+
+export function ContactHero({ primaryBranch }: ContactHeroProps) {
   return (
     <section className="relative overflow-hidden pt-40 pb-28">
 
@@ -43,7 +50,7 @@ export function ContactHero() {
 
           <h1 className="mt-10 font-heading text-6xl leading-[0.9] text-white md:text-7xl xl:text-8xl">
 
-            We'd Love
+            We&apos;d Love
 
             <br />
 
@@ -59,7 +66,7 @@ export function ContactHero() {
 
           <p className="mx-auto mt-8 max-w-3xl text-lg leading-9 text-white/65">
 
-            Whether you're craving your favourite pizza, planning a party,
+            Whether you&apos;re craving your favourite pizza, planning a party,
             have feedback, or simply want to say hello —
             our team is always ready to help.
 
@@ -79,7 +86,7 @@ export function ContactHero() {
             </Link>
 
             <a
-              href="tel:+918081871440"
+              href={`tel:+91${primaryBranch.phone}`}
               className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-8 py-5 font-semibold text-white backdrop-blur-xl transition hover:bg-white/10"
             >
 
@@ -108,7 +115,7 @@ export function ContactHero() {
 
               <p className="mt-3 text-white/60">
 
-                +91 80818 71440
+                +91 {primaryBranch.phone.slice(0, 5)} {primaryBranch.phone.slice(5)}
 
               </p>
 

@@ -1,8 +1,14 @@
-import { brand, branches } from "@/data/branches";
+import { brand } from "@/data/branches";
+import type { Branch } from "@/types";
 
-export function RestaurantSchema() {
-  const primaryBranch = branches[0];
+interface RestaurantSchemaProps {
+  /** Primary branch fetched server-side (DB-backed when configured) —
+   * see getBranches() in src/lib/data.ts — so this structured data
+   * reflects admin-edited address/phone/coordinates. */
+  primaryBranch: Branch;
+}
 
+export function RestaurantSchema({ primaryBranch }: RestaurantSchemaProps) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Restaurant",

@@ -80,12 +80,25 @@ export function calculateDeliveryFee(distanceKm: number): number {
  * the resulting delivery fee, and whether the address is within the
  * serviceable radius at all.
  *
- * Throws if `branches` is empty, or if the coordinates are not finite —
- * both indicate a configuration/caller bug rather than a normal runtime
- * condition, so callers should validate lat/lng before calling this.
+ * By default this searches the static `branches` list from
+ * src/data/branches.ts, which is fine for client-side/preview use (the
+ * checkout page's live fee display). The authoritative server-side check
+ * in POST /api/orders passes `candidateBranches` explicitly (from
+ * getBranches(), which reads the `branches` table when DATABASE_URL is
+ * set) so that branch edits/deactivations made in /admin/branches are
+ * actually reflected in delivery routing and fee calculation — not just
+ * in the pickup-branch dropdown.
+ *
+ * Throws if the branch list is empty, or if the coordinates are not
+ * finite — both indicate a configuration/caller bug rather than a normal
+ * runtime condition, so callers should validate lat/lng before calling this.
  */
-export function findNearestBranch(lat: number, lng: number): NearestBranchResult {
-  if (branches.length === 0) {
+export function findNearestBranch(
+  lat: number,
+  lng: number,
+  candidateBranches: Branch[] = branches
+): NearestBranchResult {
+  if (candidateBranches.length === 0) {
     throw new Error("findNearestBranch: no branches configured.");
   }
 
@@ -93,10 +106,10 @@ export function findNearestBranch(lat: number, lng: number): NearestBranchResult
     throw new Error(`findNearestBranch: invalid coordinates (${lat}, ${lng}).`);
   }
 
-  let nearestBranch: Branch = branches[0];
+  let nearestBranch: Branch = candidateBranches[0];
   let shortestDistanceKm = Infinity;
 
-  for (const branch of branches) {
+  for (const branch of candidateBranches) {
     const distanceKm = getHaversineDistanceKm(lat, lng, branch.lat, branch.lng);
 
     // Strictly-less-than means the first branch wins on an exact tie,

@@ -1,9 +1,52 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, CheckCircle2 } from "lucide-react";
+import type { Branch } from "@/types";
 
-export function ContactForm() {
+interface ContactFormProps {
+  /** Primary branch fetched server-side (DB-backed when configured) so
+   * the WhatsApp fallback-submission link reflects admin edits. */
+  primaryBranch: Branch;
+}
+
+export function ContactForm({ primaryBranch }: ContactFormProps) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const isValid = name.trim().length > 0 && phone.trim().length > 0 && message.trim().length > 0;
+
+  // There's no backend/database to receive form submissions yet (see
+  // src/lib/petpooja.ts for the same situation on the order side), so — to
+  // keep this actually working right now rather than silently doing
+  // nothing on submit — this sends the enquiry to the branch via
+  // WhatsApp, the same channel already used for orders throughout the
+  // site. Swap this for a real POST to a backend/CRM once one exists.
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!isValid) return;
+
+    const lines = [
+      `New enquiry from the Da Pizza Hub website contact form`,
+      ``,
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      email ? `Email: ${email}` : null,
+      subject ? `Subject: ${subject}` : null,
+      ``,
+      `Message: ${message}`,
+    ].filter(Boolean).join("\n");
+
+    const url = `https://wa.me/${primaryBranch.whatsapp}?text=${encodeURIComponent(lines)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setSubmitted(true);
+  }
+
   return (
     <section className="relative py-24">
 
@@ -30,7 +73,7 @@ export function ContactForm() {
 
             <h2 className="mt-5 font-heading text-5xl text-white lg:text-6xl">
 
-              We'd Love To
+              We&apos;d Love To
 
               <br />
 
@@ -40,7 +83,7 @@ export function ContactForm() {
 
             <p className="mt-8 max-w-lg text-lg leading-8 text-white/60">
 
-              Whether it's feedback, catering enquiries,
+              Whether it&apos;s feedback, catering enquiries,
               birthday celebrations or franchise opportunities,
               simply fill the form and our team will contact you shortly.
 
@@ -96,19 +139,44 @@ export function ContactForm() {
             className="rounded-[32px] border border-white/10 bg-white/5 p-8 backdrop-blur-2xl"
           >
 
-            <form className="space-y-6">
+            {submitted ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366]/15">
+                  <CheckCircle2 size={32} className="text-[#25D366]" />
+                </div>
+                <h3 className="text-2xl font-semibold text-white">Opening WhatsApp...</h3>
+                <p className="mt-3 max-w-xs text-white/60">
+                  Your message is ready to send on WhatsApp. If it didn&apos;t open automatically,{" "}
+                  <button
+                    type="button"
+                    onClick={() => setSubmitted(false)}
+                    className="text-[#F6C453] underline underline-offset-2 hover:text-white"
+                  >
+                    try again
+                  </button>
+                  .
+                </p>
+              </div>
+            ) : (
+            <form className="space-y-6" onSubmit={handleSubmit}>
 
               <div className="grid gap-6 md:grid-cols-2">
 
                 <input
                   type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Your Name"
+                  required
                   className="h-14 rounded-2xl border border-white/10 bg-black/20 px-5 text-white outline-none transition focus:border-[#F6C453]"
                 />
 
                 <input
                   type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="Phone Number"
+                  required
                   className="h-14 rounded-2xl border border-white/10 bg-black/20 px-5 text-white outline-none transition focus:border-[#F6C453]"
                 />
 
@@ -116,25 +184,33 @@ export function ContactForm() {
 
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email Address"
                 className="h-14 w-full rounded-2xl border border-white/10 bg-black/20 px-5 text-white outline-none transition focus:border-[#F6C453]"
               />
 
               <input
                 type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
                 placeholder="Subject"
                 className="h-14 w-full rounded-2xl border border-white/10 bg-black/20 px-5 text-white outline-none transition focus:border-[#F6C453]"
               />
 
               <textarea
                 rows={6}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us how we can help..."
+                required
                 className="w-full rounded-2xl border border-white/10 bg-black/20 p-5 text-white outline-none transition focus:border-[#F6C453]"
               />
 
               <button
                 type="submit"
-                className="flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] text-lg font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(217,31,38,.35)]"
+                disabled={!isValid}
+                className="flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#D91F26] to-[#FF6B00] text-lg font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(217,31,38,.35)] disabled:opacity-40 disabled:pointer-events-none disabled:hover:scale-100"
               >
 
                 <Send size={20} />
@@ -144,6 +220,7 @@ export function ContactForm() {
               </button>
 
             </form>
+            )}
 
           </motion.div>
 

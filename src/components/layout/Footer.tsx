@@ -4,9 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Instagram, Facebook, Twitter, Phone, MapPin, Heart } from "lucide-react";
-import { brand, branches } from "@/data/branches";
+import { brand } from "@/data/branches";
+import type { Branch } from "@/types";
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
+
+interface FooterProps {
+  /** Branches fetched server-side (DB-backed when configured) — see
+   * getBranches() in src/lib/data.ts — so admin edits to phone/address
+   * take effect here instead of the original static data staying frozen. */
+  branches: Branch[];
+}
 
 function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -21,7 +29,12 @@ function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
-export function Footer() {
+export function Footer({ branches }: FooterProps) {
+  // Looked up by id (not array position) — consistent with QuickOrder and
+  // the other contact components, so this stays correct even if branches
+  // is ever reordered.
+  const primaryBranch = branches.find((b) => b.id === "Panki") ?? branches[0];
+
   return (
     <footer id="contact" className="relative bg-surface border-t border-white/5 overflow-hidden">
       {/* Subtle top accent line */}
@@ -139,14 +152,14 @@ export function Footer() {
             </h4>
             <p className="text-sm text-ink-secondary leading-relaxed mb-4 flex gap-2.5">
               <MapPin size={15} className="shrink-0 mt-0.5 text-ink-muted" />
-              {branches[0].address}
+              {primaryBranch.address}
             </p>
             <a
-              href={`tel:${branches[0].phone}`}
+              href={`tel:${primaryBranch.phone}`}
               className="inline-flex items-center gap-2.5 text-sm text-gold hover:text-gold-dim transition-colors duration-300"
             >
               <Phone size={15} />
-              {branches[0].phone}
+              {primaryBranch.phone}
             </a>
           </FadeUp>
         </div>

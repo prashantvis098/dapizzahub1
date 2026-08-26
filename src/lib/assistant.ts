@@ -1,15 +1,16 @@
-import { pizzas } from "@/data/pizzas";
-import { burgers, fries, pastas, wraps, breads, shakes, mocktails, desserts, otherSides } from "@/data/food";
-import { branches, brand } from "@/data/branches";
 import { formatINR } from "./utils";
+import { getMenuItems, getBranches, brand } from "./data";
+import type { PizzaItem, SimpleItem, Branch } from "@/types";
 
 /**
  * Da Pizza Hub AI Assistant — grounded response engine.
  *
  * This is a lightweight, rule-based assistant that answers customer
- * questions using the ACTUAL menu/branch/pricing data in this codebase —
- * not a hallucinated LLM response. It works immediately, with no API
- * key, no external cost, and no risk of quoting wrong prices.
+ * questions using the ACTUAL menu/branch/pricing data — fetched from the
+ * database (falls back to the static data files if DATABASE_URL isn't
+ * configured; see src/lib/data.ts) so it always reflects live prices and
+ * availability from /admin/menu, not a hallucinated LLM response, and
+ * not a stale copy of what the menu looked like at deploy time.
  *
  * To upgrade this to a full LLM-powered assistant (for open-ended
  * conversation), route unmatched queries to the Anthropic API from a
@@ -18,14 +19,12 @@ import { formatINR } from "./utils";
  * this file for exactly how to do that.
  */
 
-const allSimpleItems = [...burgers, ...fries, ...pastas, ...wraps, ...breads, ...shakes, ...mocktails, ...desserts, ...otherSides];
-
 export interface AssistantReply {
   text: string;
   suggestions?: string[];
 }
 
-function findMenuMatch(query: string): string | null {
+function findMenuMatch(query: string, pizzas: PizzaItem[], simpleItems: SimpleItem[]): string | null {
   const q = query.toLowerCase();
 
   const pizzaMatch = pizzas.find((p) => q.includes(p.name.toLowerCase()));
@@ -35,7 +34,7 @@ function findMenuMatch(query: string): string | null {
     )}, Medium ${formatINR(pizzaMatch.prices.medium)}, Large ${formatINR(pizzaMatch.prices.large)}. Want me to add it to your cart?`;
   }
 
-  const itemMatch = allSimpleItems.find((item) => q.includes(item.name.toLowerCase()));
+  const itemMatch = simpleItems.find((item) => q.includes(item.name.toLowerCase()));
   if (itemMatch) {
     return `${itemMatch.name} is ${formatINR(itemMatch.price)}. Would you like to add it to your cart?`;
   }
@@ -43,11 +42,9 @@ function findMenuMatch(query: string): string | null {
   return null;
 }
 
-export function getAssistantReply(userMessage: string): AssistantReply {
-  const q = userMessage.toLowerCase().trim();
-
+function buildReply(q: string, pizzas: PizzaItem[], simpleItems: SimpleItem[], branches: Branch[]): AssistantReply {
   // Direct menu item match first
-  const menuMatch = findMenuMatch(q);
+  const menuMatch = findMenuMatch(q, pizzas, simpleItems);
   if (menuMatch) {
     return { text: menuMatch };
   }
@@ -123,6 +120,16 @@ export function getAssistantReply(userMessage: string): AssistantReply {
     text: "I couldn't find that in our menu, but I can help with pizza prices, customization, branches, delivery, or payment questions. You can also call us or message on WhatsApp for anything specific.",
     suggestions: ["Show best sellers", "Where are your branches?", "What payment methods do you accept?"],
   };
+}
+
+export async function getAssistantReply(userMessage: string): Promise<AssistantReply> {
+  const q = userMessage.toLowerCase().trim();
+
+  const [menuItems, branches] = await Promise.all([getMenuItems(), getBranches()]);
+  const pizzas = menuItems.filter((i): i is PizzaItem => i.type === "pizza");
+  const simpleItems = menuItems.filter((i): i is SimpleItem => i.type === "simple");
+
+  return buildReply(q, pizzas, simpleItems, branches);
 }
 
 /**

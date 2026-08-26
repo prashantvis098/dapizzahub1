@@ -99,3 +99,34 @@ export interface Branch {
   lat: number;
   lng: number;
 }
+
+export type OrderStatus =
+  | "new"
+  | "preparing"
+  | "out_for_delivery"
+  | "completed"
+  | "cancelled";
+
+// Row shape returned from the `orders` table (see src/lib/schema.sql),
+// used by the /admin/orders page.
+export interface OrderRecord {
+  id: number;
+  orderNumber: string;
+  branchId: string;
+  customerName: string;
+  customerPhone: string;
+  orderType: "delivery" | "pickup";
+  deliveryAddress: string | null;
+  items: CartLine[];
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  total: number;
+  couponCode: string | null;
+  paymentMethod: "cod" | "upi";
+  scheduleMode: "now" | "later";
+  scheduledFor: string | null;
+  status: OrderStatus;
+  createdAt: string;
+}
+
